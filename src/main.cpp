@@ -2,4 +2,6 @@
 
 const int PORT = 3000;
 
-int main() { Server::run(PORT); }
+int main() {
+  Server::run(PORT);
+}

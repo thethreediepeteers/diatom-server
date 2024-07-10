@@ -1,8 +1,8 @@
 CXX := g++
-LIB_FLAGS := -lusockets -lz
+LIB_FLAGS := -luSockets -lz
 
-server: src/main.cpp
-	$(CXX) -std=c++20 $(LIB_FLAGS) src/main.cpp src/modules/*.cpp src/components/*.cpp -o server
+build: src/main.cpp
+	$(CXX) src/main.cpp src/modules/*.cpp src/components/*.cpp -o server.o -std=c++20 $(LIB_FLAGS)
 
 clean:
 	rm server

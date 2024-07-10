@@ -2,8 +2,8 @@
 
 struct XY {
   int x, y;
-
-  XY(int x, int y) : x(x), y(y) {}
+  XY(int x, int y) : x(x), y(y) {
+  }
 };
 
 class Entity {
