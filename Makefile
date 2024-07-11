@@ -1,5 +1,5 @@
 CXX := g++
-LIB_FLAGS := -lusockets -lz
+LIB_FLAGS := -lusockets -lz -ljsoncpp
 
 build: src/main.cpp
 	$(CXX) src/main.cpp src/modules/*.cpp src/components/*.cpp -o server -std=c++20 $(LIB_FLAGS)

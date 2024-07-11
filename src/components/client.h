@@ -5,7 +5,6 @@
 
 struct Connection {
   int id;
-  std::string name;
 };
 
 using WS = uWS::WebSocket<false, true, Connection>;
