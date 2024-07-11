@@ -1,12 +1,8 @@
+#include "../components/client.h"
+#include "util.h"
 #include <uWebSockets/App.h>
 
 namespace Server {
-struct SocketData {
-  int id;
-};
-
-typedef uWS::WebSocket<false, true, SocketData> WS;
-
 void run(int port);
 
 void socketOpen(WS *ws);

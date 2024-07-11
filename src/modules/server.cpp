@@ -1,12 +1,13 @@
 #include "server.h"
 
 #include <iostream>
+#include <string>
 
 int counter = 0;
 
 void Server::run(int port) {
   uWS::App()
-      .ws<SocketData>(
+      .ws<Connection>(
           "/ws",
           {.open = socketOpen, .message = socketMessage, .close = socketClose})
       .listen(port,
@@ -22,8 +23,12 @@ void Server::run(int port) {
 }
 
 void Server::socketOpen(WS *ws) {
-  SocketData *data = ws->getUserData();
+  Connection *data = ws->getUserData();
   data->id = counter++;
+
+  Client *client = new Client(ws, data->id);
+
+  client->talk(std::to_string(data->id));
 
   std::cout << "Client " << data->id << " connected from "
             << ws->getRemoteAddress() << '\n';
@@ -31,12 +36,16 @@ void Server::socketOpen(WS *ws) {
 
 void Server::socketMessage(WS *ws, std::string_view message,
                            uWS::OpCode /*opCode*/) {
-  SocketData *data = ws->getUserData();
-  std::cout << "Message from client " << data->id << " recieved: " << message
-            << '\n';
+  Connection *data = ws->getUserData();
+
+  Client *client = Client::instances.at(data->id);
+  client->handleMessage(message);
 }
 
 void Server::socketClose(WS *ws, int /*code*/, std::string_view /*message*/) {
-  SocketData *data = ws->getUserData();
+  Connection *data = ws->getUserData();
   std::cout << "Client " << data->id << " disconnected" << '\n';
+
+  Client *client = Client::instances.at(data->id);
+  delete client;
 }
