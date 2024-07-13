@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <uWebSockets/Loop.h>
 #include <uWebSockets/WebSocketProtocol.h>
 
 using nlohmann::json;
@@ -35,15 +36,13 @@ void Client::handleMessage(std::string_view message) {
     json j = json::parse(message);
 
     std::cout << "Message from client " << id << " received: " << j << '\n';
-    for (auto &e : j) {
-      if (e.size() == 3 && e[0] == 0 && e[1].is_number() &&
-          e[2].is_boolean()) { // movement packet
-        if (e[2]) {
-          double m = e[1];
-          movement = {std::cos(m), std::sin(m)};
-        } else {
-          movement = {0, 0};
-        }
+    if (j.size() == 3 && j[0] == 0 && j[1].is_number() &&
+        j[2].is_boolean()) { // movement packet
+      if (j[2]) {
+        double m = j[1];
+        movement = {std::cos(m), std::sin(m)};
+      } else {
+        movement = {0, 0};
       }
     }
   } catch (...) { // invalid packet received

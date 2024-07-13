@@ -33,7 +33,7 @@ void Server::socketOpen(WS *ws) {
   json j = {0, {"id", data->id}};
   client->talk(j.dump());
   std::cout << "Client " << data->id << " connected from "
-            << ws->getRemoteAddress() << '\n';
+            << ws->getRemoteAddressAsText() << '\n';
 }
 
 void Server::socketMessage(WS *ws, std::string_view message,
