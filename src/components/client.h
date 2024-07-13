@@ -16,6 +16,8 @@ public:
   Client(WS *socket, int id);
   ~Client();
 
+  void tick();
+
   void talk(std::string_view message);
   void handleMessage(std::string_view message);
   void kick();
@@ -23,4 +25,6 @@ public:
 private:
   WS *socket;
   int id;
+
+  XY movement;
 };

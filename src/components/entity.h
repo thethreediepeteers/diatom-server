@@ -1,8 +1,17 @@
 #include <map>
+#include <nlohmann/json.hpp>
 
 struct XY {
-  int x, y;
-  XY(int x, int y) : x(x), y(y) {
+  double x, y;
+  XY(double x, double y) : x(x), y(y) {}
+
+  void operator+=(const XY &other) {
+    x += other.x;
+    y += other.y;
+  }
+  void operator*=(double n) {
+    x *= n;
+    y *= n;
   }
 };
 
@@ -13,6 +22,13 @@ public:
 
   Entity(int x, int y);
   ~Entity();
+
+  void tick();
+
+  int getId() { return id; };
+  XY &getVel() { return vel; };
+
+  nlohmann::json encode();
 
 private:
   int id;

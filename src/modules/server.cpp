@@ -6,8 +6,6 @@
 
 using nlohmann::json;
 
-int counter = 0;
-
 void Server::run(int port) {
   uWS::App()
       .ws<Connection>(
@@ -25,14 +23,14 @@ void Server::run(int port) {
       .run();
 }
 
+int counter = 0;
 void Server::socketOpen(WS *ws) {
   Connection *data = ws->getUserData();
   data->id = counter++;
 
   Client *client = new Client(ws, data->id);
 
-  int id = data->id;
-  json j = {{"id", id}};
+  json j = {0, {"id", data->id}};
   client->talk(j.dump());
   std::cout << "Client " << data->id << " connected from "
             << ws->getRemoteAddress() << '\n';
