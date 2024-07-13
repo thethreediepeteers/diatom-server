@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <uWebSockets/WebSocketProtocol.h>
 
 using nlohmann::json;
 
@@ -26,7 +27,9 @@ void Client::tick() {
   talk(message.dump());
 }
 
-void Client::talk(std::string_view message) { socket->send(message); }
+void Client::talk(std::string_view message) {
+  socket->send(message, uWS::OpCode::TEXT);
+}
 void Client::handleMessage(std::string_view message) {
   try {
     json j = json::parse(message);
