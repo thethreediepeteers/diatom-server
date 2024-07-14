@@ -24,11 +24,11 @@ void gameLoop() {
     auto start = std::chrono::steady_clock::now();
 
     {
-      for (auto &client : Client::instances) {
+      for (auto& client : Client::instances) {
         client.second->tick();
       }
 
-      for (auto &entity : Entity::instances) {
+      for (auto& entity : Entity::instances) {
         entity.second->tick();
       }
     }

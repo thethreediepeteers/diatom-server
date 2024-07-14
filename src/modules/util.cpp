@@ -1,6 +1,6 @@
 #include "util.h"
 
-std::string Util::trim(std::string &s) {
+std::string Util::trim(std::string& s) {
   const std::string whitespace = " \t\n\r\f\v";
 
   size_t firstNonSpace = s.find_first_not_of(whitespace);

@@ -5,7 +5,7 @@ struct XY {
   double x, y;
   XY(double x, double y) : x(x), y(y) {}
 
-  void operator+=(const XY &other) {
+  void operator+=(const XY& other) {
     x += other.x;
     y += other.y;
   }
@@ -17,7 +17,7 @@ struct XY {
 
 class Entity {
 public:
-  static std::map<int, Entity *> instances;
+  static std::map<int, Entity*> instances;
   static int counter;
 
   Entity(int x, int y);
@@ -26,7 +26,7 @@ public:
   void tick();
 
   int getId() { return id; };
-  XY &getVel() { return vel; };
+  XY& getVel() { return vel; };
 
   nlohmann::json encode();
 

@@ -9,6 +9,7 @@
 *.ntvs*
 *.njsproj
 *.sw?
+.clang-format
 
 # Other
 *.env

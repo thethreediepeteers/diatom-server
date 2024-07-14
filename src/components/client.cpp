@@ -7,9 +7,9 @@
 
 using nlohmann::json;
 
-std::map<int, Client *> Client::instances{};
+std::map<int, Client*> Client::instances{};
 
-Client::Client(WS *socket, int id)
+Client::Client(WS* socket, int id)
     : socket(socket), id(id), Entity(0, 0), movement(XY(0, 0)) {
   instances[id] = this;
 };
@@ -21,7 +21,7 @@ void Client::tick() {
   json message;
 
   message.push_back(1);
-  for (auto &e : Entity::instances) {
+  for (auto& e : Entity::instances) {
     message.push_back(e.second->encode());
   }
 
@@ -45,8 +45,8 @@ void Client::handleMessage(std::string_view message) {
         movement = {0, 0};
       }
     }
-  } catch (...) { // invalid packet received
-  }
+  } catch (...) {
+  } // invalid packet received
 }
 void Client::kick() {
   socket->close();

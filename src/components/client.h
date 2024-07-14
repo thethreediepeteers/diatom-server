@@ -11,9 +11,9 @@ using WS = uWS::WebSocket<false, true, Connection>;
 
 class Client : Entity {
 public:
-  static std::map<int, Client *> instances;
+  static std::map<int, Client*> instances;
 
-  Client(WS *socket, int id);
+  Client(WS* socket, int id);
   ~Client();
 
   void tick();
@@ -23,7 +23,7 @@ public:
   void kick();
 
 private:
-  WS *socket;
+  WS* socket;
   int id;
 
   XY movement;
