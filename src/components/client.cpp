@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <websocketpp/close.hpp>
 #include <websocketpp/common/system_error.hpp>
 
 using nlohmann::json;
@@ -42,17 +43,15 @@ void Client::handleMessage(std::string message) {
 
     if (j.size() == 3 && j[0] == MessageType::Movement && j[1].is_number() &&
         j[2].is_boolean()) { // movement packet
-      if (j[2]) {
-        double m = j[1];
-        movement = {std::cos(m), std::sin(m)};
-      } else {
-        movement = {0, 0};
-      }
+
+      double m = j[1];
+      movement = j[2] ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
     }
   } catch (...) {
   } // invalid packet received*/
 }
 void Client::kick() {
+  socket->close(websocketpp::close::status::policy_violation, "Kicked!");
   // socket->close();
   std::cout << "Client " << id << " kicked" << '\n';
   delete this;
