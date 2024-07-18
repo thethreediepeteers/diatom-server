@@ -2,8 +2,6 @@
 #include <cmath>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <websocketpp/close.hpp>
-#include <websocketpp/common/system_error.hpp>
 
 using nlohmann::json;
 
@@ -36,8 +34,8 @@ void Client::talk(std::string message) {
 }
 void Client::handleMessage(std::string message) {
 
-  std::cout << "Message from client " << id
-            << " received: " << Util::trim(message) << '\n';
+  // std::cout << "Message from client " << id
+  //           << " received: " << Util::trim(message) << '\n';
   try {
     json j = json::parse(message);
 
@@ -52,7 +50,6 @@ void Client::handleMessage(std::string message) {
 }
 void Client::kick() {
   socket->close(websocketpp::close::status::policy_violation, "Kicked!");
-  // socket->close();
   std::cout << "Client " << id << " kicked" << '\n';
   delete this;
 }

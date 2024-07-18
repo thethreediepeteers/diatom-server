@@ -1,8 +1,7 @@
 #include "../modules/util.h"
 #include "entity.h"
 #include <map>
-#include <websocketpp/client.hpp>
-#include <websocketpp/config/asio.hpp>
+#include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/connection.hpp>
 
 using WS = std::shared_ptr<websocketpp::connection<websocketpp::config::asio>>;

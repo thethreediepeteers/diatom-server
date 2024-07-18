@@ -26,6 +26,8 @@ public:
   void tick();
 
   int getId() { return id; };
+
+  XY& getPos() { return pos; };
   XY& getVel() { return vel; };
 
   nlohmann::json encode();

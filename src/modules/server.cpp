@@ -1,15 +1,11 @@
 #include "server.h"
+#include "../config.h"
 
 #include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <websocketpp/close.hpp>
-#include <websocketpp/common/connection_hdl.hpp>
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/logger/levels.hpp>
-#include <websocketpp/transport/asio/endpoint.hpp>
 
 using nlohmann::json;
 using websocketpp::lib::bind;
@@ -24,8 +20,10 @@ Server::Server() {
   server.set_message_handler(bind(&Server::socketMessage, this, ::_1, ::_2));
   server.set_close_handler(bind(&Server::socketClose, this, ::_1));
 
-  server.clear_access_channels(websocketpp::log::alevel::all);
-  server.clear_error_channels(websocketpp::log::elevel::all);
+  if (!config::ENABLE_SERVER_LOGGING) {
+    server.clear_access_channels(websocketpp::log::alevel::all);
+    server.clear_error_channels(websocketpp::log::elevel::all);
+  }
 }
 
 void Server::run(int port) {
