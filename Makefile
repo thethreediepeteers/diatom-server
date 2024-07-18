@@ -1,11 +1,20 @@
 CXX := g++
-LIB_FLAGS := -lusockets -lz -ljsoncpp
+CXXFLAGS := -std=c++20
+LIBFLAGS := -lz -ljsoncpp -lboost_system -lssl -lcrypto
+INCLUDES := -Lsrc/ -L/usr/include/websocketpp -I/usr/include/boost
+SRC_DIR := src
+TARGET := server
 
-build: src/main.cpp
-	$(CXX) src/main.cpp src/modules/*.cpp src/components/*.cpp -o server -std=c++20 $(LIB_FLAGS)
+SRC_FILES := ${wildcard ${SRC_DIR}/main.cpp ${SRC_DIR}/modules/*.cpp ${SRC_DIR}/components/*.cpp}
+OBJ_FILES := ${SRC_FILES:.cpp=.o}
 
-chase: src/main.cpp
-	$(CXX) src/main.cpp src/modules/*.cpp src/components/*.cpp -o server -std=c++20 -luSockets -lz
+all: ${TARGET}
+
+${TARGET}: ${OBJ_FILES}
+	${CXX} ${CXXFLAGS} ${OBJ_FILES} -o ${TARGET} ${LIBFLAGS}
+
+%.o: %.cpp
+	${CXX} ${CXXFLAGS} -c $< -o $@
 
 clean:
-	rm server
+	rm -rf ${TARGET} ${OBJ_FILES}

@@ -1,5 +1,6 @@
 #include "modules/server.h"
 #include <chrono>
+#include <csignal>
 #include <thread>
 
 const int PORT = 3000;
@@ -9,8 +10,15 @@ void gameLoop();
 
 int main() {
   std::thread loop(gameLoop);
+  Server server;
+  std::signal(SIGINT, server.cleanup);
+  std::signal(SIGTERM, server.cleanup);
 
-  Server::run(PORT);
+  server.run(PORT);
+
+  loop.detach();
+
+  std::cout << "Server successfully shut down" << '\n';
 
   return 0;
 }

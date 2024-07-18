@@ -2,14 +2,13 @@
 #include <cmath>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <uWebSockets/Loop.h>
-#include <uWebSockets/WebSocketProtocol.h>
+#include <websocketpp/common/system_error.hpp>
 
 using nlohmann::json;
 
 std::map<int, Client*> Client::instances{};
 
-Client::Client(WS* socket, int id)
+Client::Client(WS socket, int id)
     : socket(socket), id(id), Entity(0, 0), movement(XY(0, 0)) {
   instances[id] = this;
 };
@@ -28,15 +27,20 @@ void Client::tick() {
   talk(message.dump());
 }
 
-void Client::talk(std::string_view message) {
-  socket->send(message, uWS::OpCode::TEXT);
+void Client::talk(std::string message) {
+  try {
+    auto code = socket->send(message);
+  } catch (...) {
+  }
 }
-void Client::handleMessage(std::string_view message) {
+void Client::handleMessage(std::string message) {
+
+  std::cout << "Message from client " << id
+            << " received: " << Util::trim(message) << '\n';
   try {
     json j = json::parse(message);
 
-    std::cout << "Message from client " << id << " received: " << j << '\n';
-    if (j.size() == 3 && j[0] == 0 && j[1].is_number() &&
+    if (j.size() == 3 && j[0] == MessageType::Movement && j[1].is_number() &&
         j[2].is_boolean()) { // movement packet
       if (j[2]) {
         double m = j[1];
@@ -46,10 +50,10 @@ void Client::handleMessage(std::string_view message) {
       }
     }
   } catch (...) {
-  } // invalid packet received
+  } // invalid packet received*/
 }
 void Client::kick() {
-  socket->close();
+  // socket->close();
   std::cout << "Client " << id << " kicked" << '\n';
   delete this;
 }
