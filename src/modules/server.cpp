@@ -75,7 +75,6 @@ void Server::socketClose(WSHandle ws) {
 void Server::cleanup(int signal) {
   server.stop_listening();
 
-  Client::instances.clear();
   for (auto c : connections) {
     server.close(c.first, websocketpp::close::status::going_away,
                  "Server shutdown");

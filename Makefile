@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++20
+CXXFLAGS := -std=c++20 -g
 LIBFLAGS := -lz -ljsoncpp -lboost_system -lssl -lcrypto
 INCLUDES := -Lsrc/ -L/usr/include/websocketpp -I/usr/include/boost
 SRC_DIR := src
