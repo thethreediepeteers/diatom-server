@@ -1,23 +1,15 @@
 #include "../components/client.h"
-#include <map>
-#include <memory>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
-class Server {
-public:
-  Server();
+namespace Server {
+void run(int port);
+void cleanup(int signal);
 
-  void run(int port);
-  static void cleanup(int signal);
+using WSServer = websocketpp::server<websocketpp::config::asio>;
+using WSHandle = websocketpp::connection_hdl;
 
-private:
-  using WSServer = websocketpp::server<websocketpp::config::asio>;
-  using WSHandle = websocketpp::connection_hdl;
-  static WSServer server;
-  static std::map<WSHandle, int, std::owner_less<WSHandle>> connections;
-
-  void socketOpen(WSHandle ws);
-  void socketMessage(WSHandle ws, WSServer::message_ptr message);
-  void socketClose(WSHandle ws);
-};
+void socketOpen(WSHandle ws);
+void socketMessage(WSHandle ws, WSServer::message_ptr message);
+void socketClose(WSHandle ws);
+} // namespace Server

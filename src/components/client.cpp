@@ -14,7 +14,7 @@ Client::Client(WS socket, int id)
 Client::~Client() { instances.erase(id); }
 
 void Client::tick() {
-  getVel() += movement;
+  vel += movement;
 
   json message;
 
@@ -34,16 +34,17 @@ void Client::talk(std::string message) {
 }
 void Client::handleMessage(std::string message) {
 
-  // std::cout << "Message from client " << id
-  //           << " received: " << Util::trim(message) << '\n';
+  std::cout << "Message from client " << id
+            << " received: " << Util::trim(message) << '\n';
   try {
     json j = json::parse(message);
 
     if (j.size() == 3 && j[0] == MessageType::Movement && j[1].is_number() &&
-        j[2].is_boolean()) { // movement packet
+        j[2].is_number()) { // movement packet
 
       double m = j[1];
-      movement = j[2] ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
+      bool moving = j[2].get<int>() & 1;
+      movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
     }
   } catch (...) {
   } // invalid packet received*/

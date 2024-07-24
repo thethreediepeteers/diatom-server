@@ -14,6 +14,6 @@ void Entity::tick() {
   vel *= 0.8;
 }
 
-nlohmann::json Entity::encode() {
+json Entity::encode() {
   return {{"id", id}, {"pos", {{"x", pos.x}, {"y", pos.y}}}};
 }

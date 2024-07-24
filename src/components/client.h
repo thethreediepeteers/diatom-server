@@ -1,6 +1,5 @@
 #include "../modules/util.h"
 #include "entity.h"
-#include <map>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/connection.hpp>
 
@@ -21,6 +20,7 @@ public:
 
 private:
   enum class MessageType { Movement };
+
   WS socket;
   int id;
 

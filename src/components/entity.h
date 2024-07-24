@@ -1,6 +1,8 @@
 #include <map>
 #include <nlohmann/json.hpp>
 
+using nlohmann::json;
+
 struct XY {
   double x, y;
   XY(double x, double y) : x(x), y(y) {}
@@ -25,15 +27,12 @@ public:
 
   void tick();
 
-  int getId() { return id; };
-
-  XY& getPos() { return pos; };
-  XY& getVel() { return vel; };
-
-  nlohmann::json encode();
+  json encode();
 
 private:
   int id;
+
+protected:
   XY pos;
   XY vel;
 };

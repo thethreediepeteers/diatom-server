@@ -1,7 +1,4 @@
 #include "modules/server.h"
-#include <chrono>
-#include <csignal>
-#include <thread>
 
 const int PORT = 3000;
 const int FPS = 30;
@@ -10,13 +7,12 @@ void gameLoop();
 
 int main() {
   std::thread loop(gameLoop);
-  Server server;
-  std::signal(SIGINT, server.cleanup);
-  std::signal(SIGTERM, server.cleanup);
+  std::signal(SIGINT, Server::cleanup);
+  std::signal(SIGTERM, Server::cleanup);
 
-  server.run(PORT);
+  Server::run(PORT);
 
-  loop.detach();
+  loop.detach(); // when server is done running
 
   std::cout << "Server successfully shut down" << '\n';
 
@@ -32,11 +28,11 @@ void gameLoop() {
     auto start = std::chrono::steady_clock::now();
 
     {
-      for (auto& client : Client::instances) {
+      for (auto &client : Client::instances) {
         client.second->tick();
       }
 
-      for (auto& entity : Entity::instances) {
+      for (auto &entity : Entity::instances) {
         entity.second->tick();
       }
     }

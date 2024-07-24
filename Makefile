@@ -13,6 +13,8 @@ all: ${TARGET}
 ${TARGET}: ${OBJ_FILES}
 	${CXX} ${CXXFLAGS} ${OBJ_FILES} -o ${TARGET} ${LIBFLAGS}
 
+${OBJ_FILES}: src/config.h
+
 %.o: %.cpp
 	${CXX} ${CXXFLAGS} -c $< -o $@
 
