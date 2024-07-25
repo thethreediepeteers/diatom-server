@@ -1,15 +1,11 @@
 #include "../components/client.h"
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
+#include <uWebSockets/App.h>
 
 namespace Server {
-void run(int port);
-void cleanup(int signal);
+  void run(int port, us_timer_t* timer);
+  void cleanup(int signal);
 
-using WSServer = websocketpp::server<websocketpp::config::asio>;
-using WSHandle = websocketpp::connection_hdl;
-
-void socketOpen(WSHandle ws);
-void socketMessage(WSHandle ws, WSServer::message_ptr message);
-void socketClose(WSHandle ws);
+  void socketOpen(WS* ws);
+  void socketMessage(WS* ws, std::string_view message, uWS::OpCode opCode);
+  void socketClose(WS* ws, int code, std::string_view message);
 } // namespace Server

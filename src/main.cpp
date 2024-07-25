@@ -1,4 +1,5 @@
 #include "modules/server.h"
+#include <csignal>
 
 const int PORT = 3000;
 const int FPS = 30;
@@ -6,13 +7,15 @@ const int FPS = 30;
 void gameLoop();
 
 int main() {
-  std::thread loop(gameLoop);
+  auto loop = uWS::Loop::get();
+  us_timer_t* delayTimer = us_create_timer((us_loop_t*)loop, 0, 0);
+  us_timer_set(
+      delayTimer, [](us_timer_t*) { gameLoop(); }, 1000 / FPS, 1000 / FPS);
+
   std::signal(SIGINT, Server::cleanup);
   std::signal(SIGTERM, Server::cleanup);
 
-  Server::run(PORT);
-
-  loop.detach(); // when server is done running
+  Server::run(PORT, delayTimer);
 
   std::cout << "Server successfully shut down" << '\n';
 
@@ -20,28 +23,11 @@ int main() {
 }
 
 void gameLoop() {
-  bool quit = false;
+  for (auto& client : Client::instances) {
+    client.second->tick();
+  }
 
-  const std::chrono::milliseconds frameDuration(1000 / FPS);
-
-  while (!quit) {
-    auto start = std::chrono::steady_clock::now();
-
-    {
-      for (auto &client : Client::instances) {
-        client.second->tick();
-      }
-
-      for (auto &entity : Entity::instances) {
-        entity.second->tick();
-      }
-    }
-
-    auto end = std::chrono::steady_clock::now();
-    auto loopTime = end - start;
-
-    if (loopTime < frameDuration) {
-      std::this_thread::sleep_for(frameDuration - loopTime);
-    }
+  for (auto& entity : Entity::instances) {
+    entity.second->tick();
   }
 }

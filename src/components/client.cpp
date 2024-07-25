@@ -2,16 +2,17 @@
 #include <cmath>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <uWebSockets/WebSocketProtocol.h>
 
 using nlohmann::json;
 
 std::map<int, Client*> Client::instances{};
 
-Client::Client(WS socket, int id)
+Client::Client(WS* socket, int id)
     : socket(socket), id(id), Entity(0, 0), movement(XY(0, 0)) {
   instances[id] = this;
 };
-Client::~Client() { instances.erase(id); }
+Client::~Client() { socket->close(); }
 
 void Client::tick() {
   vel += movement;
@@ -27,15 +28,12 @@ void Client::tick() {
 }
 
 void Client::talk(std::string message) {
-  try {
-    auto code = socket->send(message);
-  } catch (...) {
-  }
+  socket->send(message, uWS::OpCode::TEXT);
 }
 void Client::handleMessage(std::string message) {
+  Util::trim(message);
+  std::cout << "Message from client " << id << " received: " << message << '\n';
 
-  std::cout << "Message from client " << id
-            << " received: " << Util::trim(message) << '\n';
   try {
     json j = json::parse(message);
 
@@ -50,7 +48,8 @@ void Client::handleMessage(std::string message) {
   } // invalid packet received*/
 }
 void Client::kick() {
-  socket->close(websocketpp::close::status::policy_violation, "Kicked!");
+  instances.erase(id);
+  socket->close();
+
   std::cout << "Client " << id << " kicked" << '\n';
-  delete this;
 }

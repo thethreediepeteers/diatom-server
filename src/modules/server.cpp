@@ -5,11 +5,29 @@
 
 using nlohmann::json;
 
-Server::WSServer server;
-std::map<Server::WSHandle, int, std::owner_less<Server::WSHandle>> connections;
+us_listen_socket_t* listenSocket;
+us_timer_t* delayTimer;
 
-void Server::run(int port) {
-  server.init_asio();
+void Server::run(int port, us_timer_t* timer) {
+  delayTimer = timer;
+  uWS::App()
+      .ws<SocketData>(
+          "/ws",
+          {.open = socketOpen, .message = socketMessage, .close = socketClose})
+      .listen(port,
+              [port](auto* token) {
+                listenSocket = token;
+                if (listenSocket) {
+
+                  std::cout << "WebSocket server listening on port " << port
+                            << '\n';
+                } else {
+                  std::cout << "Failed to bind to port " << port << '\n';
+                }
+              })
+      .run();
+
+  /*server.init_asio();
 
   server.set_open_handler(Server::socketOpen);
   server.set_message_handler(Server::socketMessage);
@@ -26,55 +44,54 @@ void Server::run(int port) {
   std::cout << "WebSocket server listening on port " << port << '\n';
 
   server.start_accept();
-  server.run();
+  server.run();*/
 }
 
 int counter = 0;
-void Server::socketOpen(WSHandle ws) {
+void Server::socketOpen(WS* ws) {
   int id = counter++;
-  connections[ws] = id;
 
-  std::shared_ptr conn = server.get_con_from_hdl(ws);
+  SocketData* data = ws->getUserData();
+  data->id = id;
 
-  Client *client = new Client(conn, id);
+  Client* client = new Client(ws, id);
 
   json j = {0, {{"id", id}}};
   client->talk(j.dump());
 
-  std::cout << "Client " << id << " connected from " << conn->get_host()
-            << '\n';
+  std::cout << "Client " << id << " connected from "
+            << ws->getRemoteAddressAsText() << '\n';
 }
 
-void Server::socketMessage(WSHandle ws, WSServer::message_ptr message) {
-  int id = connections[ws];
-  Client *client = Client::instances[id];
-  client->handleMessage(message->get_payload());
+void Server::socketMessage(WS* ws, std::string_view message,
+                           uWS::OpCode /*opCode*/) {
+  int id = ws->getUserData()->id;
+
+  Client* client = Client::instances[id];
+  client->handleMessage(std::string{message});
 }
 
-void Server::socketClose(WSHandle ws) {
-  int id = connections[ws];
+void Server::socketClose(WS* ws, int /*code*/, std::string_view /*message*/) {
+  int id = ws->getUserData()->id;
 
   std::cout << "Client " << id << " disconnected" << '\n';
 
-  Client *client = Client::instances[id];
-  delete client;
-
-  connections.erase(ws);
+  Client* client = Client::instances[id];
+  if (client) {
+    Client::instances.erase(id);
+    delete client;
+  }
 }
 
 void Server::cleanup(int signal) {
-  server.stop_listening();
+  std::cout << '\n';
 
-  std::vector<WSHandle> conns;
-
-  for (auto c : connections) {
-    conns.push_back(c.first);
+  for (auto it = Client::instances.begin(); it != Client::instances.end();) {
+    Client* client = it->second;
+    it = Client::instances.erase(it);
+    delete client;
   }
 
-  for (WSHandle handle : conns) {
-    server.close(handle, websocketpp::close::status::going_away,
-                 "Server shutdown");
-  }
-
-  connections.clear();
+  us_listen_socket_close(0, listenSocket);
+  us_timer_close(delayTimer);
 }

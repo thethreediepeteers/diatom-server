@@ -1,15 +1,17 @@
 #include "../modules/util.h"
 #include "entity.h"
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/connection.hpp>
+#include <uWebSockets/App.h>
 
-using WS = std::shared_ptr<websocketpp::connection<websocketpp::config::asio>>;
+struct SocketData {
+  int id;
+};
+using WS = uWS::WebSocket<false, true, SocketData>;
 
 class Client : Entity {
 public:
   static std::map<int, Client*> instances;
 
-  Client(WS socket, int id);
+  Client(WS* socket, int id);
   ~Client();
 
   void tick();
@@ -21,7 +23,7 @@ public:
 private:
   enum class MessageType { Movement };
 
-  WS socket;
+  WS* socket;
   int id;
 
   XY movement;
