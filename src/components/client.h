@@ -20,11 +20,17 @@ public:
   void handleMessage(std::string message);
   void kick();
 
+  int getEntityId() { return entityId; };
+  bool isDead() { return disconnected; };
+
 private:
   enum class MessageType { Movement };
 
   WS* socket;
+  bool disconnected;
+
   int id;
+  int entityId;
 
   XY movement;
 };

@@ -1,6 +1,7 @@
 #include "util.h"
+#include <random>
 
-std::string Util::trim(std::string& s) {
+std::string util::trim(std::string& s) {
   const std::string whitespace = " \t\n\r\f\v";
 
   size_t firstNonSpace = s.find_first_not_of(whitespace);
@@ -11,3 +12,14 @@ std::string Util::trim(std::string& s) {
 
   return s;
 }
+
+int util::randint(int min, int max) {
+  std::random_device rd;
+  std::default_random_engine engine(rd());
+
+  std::uniform_int_distribution<> dis(min, max);
+
+  return dis(engine);
+}
+
+int util::randint(int max) { return randint(0, max); }

@@ -1,15 +1,18 @@
 #include "server.h"
-#include "../config.h"
-
-#include <nlohmann/json.hpp>
-
-using nlohmann::json;
+#include "config.h"
+#include "physics.h"
+#include <libusockets.h>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
 us_listen_socket_t* listenSocket;
 us_timer_t* delayTimer;
+Map map(config::MAP_WIDTH, config::MAP_HEIGHT);
 
-void Server::run(int port, us_timer_t* timer) {
+void server::run(int port, us_timer_t* timer) {
   delayTimer = timer;
+
   uWS::App()
       .ws<SocketData>(
           "/ws",
@@ -26,29 +29,10 @@ void Server::run(int port, us_timer_t* timer) {
                 }
               })
       .run();
-
-  /*server.init_asio();
-
-  server.set_open_handler(Server::socketOpen);
-  server.set_message_handler(Server::socketMessage);
-  server.set_close_handler(Server::socketClose);
-
-  server.set_reuse_addr(true);
-
-  if (!config::ENABLE_SERVER_LOGGING) {
-    server.clear_access_channels(websocketpp::log::alevel::all);
-    server.clear_error_channels(websocketpp::log::elevel::all);
-  }
-
-  server.listen(port);
-  std::cout << "WebSocket server listening on port " << port << '\n';
-
-  server.start_accept();
-  server.run();*/
 }
 
 int counter = 0;
-void Server::socketOpen(WS* ws) {
+void server::socketOpen(WS* ws) {
   int id = counter++;
 
   SocketData* data = ws->getUserData();
@@ -56,14 +40,29 @@ void Server::socketOpen(WS* ws) {
 
   Client* client = new Client(ws, id);
 
-  json j = {0, {{"id", id}}};
-  client->talk(j.dump());
+  rapidjson::StringBuffer s;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+
+  writer.StartArray();
+  writer.Int(0);
+  writer.StartObject();
+  writer.Key("id");
+  writer.Int(client->getEntityId());
+  writer.Key("map");
+
+  auto doc = map.encode();
+  doc.Accept(writer);
+
+  writer.EndObject();
+  writer.EndArray();
+
+  client->talk(s.GetString());
 
   std::cout << "Client " << id << " connected from "
             << ws->getRemoteAddressAsText() << '\n';
 }
 
-void Server::socketMessage(WS* ws, std::string_view message,
+void server::socketMessage(WS* ws, std::string_view message,
                            uWS::OpCode /*opCode*/) {
   int id = ws->getUserData()->id;
 
@@ -71,27 +70,31 @@ void Server::socketMessage(WS* ws, std::string_view message,
   client->handleMessage(std::string{message});
 }
 
-void Server::socketClose(WS* ws, int /*code*/, std::string_view /*message*/) {
+void server::socketClose(WS* ws, int /*code*/, std::string_view /*message*/) {
   int id = ws->getUserData()->id;
 
   std::cout << "Client " << id << " disconnected" << '\n';
 
   Client* client = Client::instances[id];
-  if (client) {
+  if (!client->isDead()) {
     Client::instances.erase(id);
     delete client;
   }
 }
 
-void Server::cleanup(int signal) {
+void server::cleanup(int signal) {
   std::cout << '\n';
 
-  for (auto it = Client::instances.begin(); it != Client::instances.end();) {
-    Client* client = it->second;
-    it = Client::instances.erase(it);
-    delete client;
-  }
-
-  us_listen_socket_close(0, listenSocket);
   us_timer_close(delayTimer);
+  us_listen_socket_close(0, listenSocket);
+
+  for (auto c : Client::instances) {
+    delete c.second;
+  }
+  Client::instances.clear();
+
+  for (auto e : Entity::instances) {
+    delete e.second;
+  }
+  Entity::instances.clear();
 }

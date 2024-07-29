@@ -1,7 +1,9 @@
+#include <cstring>
+#include <iostream>
 #include <map>
-#include <nlohmann/json.hpp>
-
-using nlohmann::json;
+#include <rapidjson/document.h>
+#include <string>
+#include <vector>
 
 struct XY {
   double x, y;
@@ -17,22 +19,36 @@ struct XY {
   }
 };
 
+struct EntityState {
+  EntityState(int id, double x, double y, float size)
+      : id(id), x(x), y(y), size(size) {}
+  int id;
+  double x, y;
+  float size;
+
+  unsigned char* serialize() { return reinterpret_cast<unsigned char*>(this); }
+};
+
 class Entity {
 public:
   static std::map<int, Entity*> instances;
   static int counter;
 
-  Entity(int x, int y);
-  ~Entity();
+  Entity(double x, double y, int size);
+  virtual ~Entity();
 
   void tick();
+  void stayInBounds(int x, int y, int width, int height);
 
-  json encode();
+  rapidjson::Document encode();
 
 private:
   int id;
 
 protected:
+  int getId() { return id; };
+
   XY pos;
+  int size;
   XY vel;
 };

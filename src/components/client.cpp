@@ -1,51 +1,61 @@
 #include "client.h"
+#include "../modules/config.h"
 #include <cmath>
 #include <iostream>
-#include <nlohmann/json.hpp>
-#include <uWebSockets/WebSocketProtocol.h>
-
-using nlohmann::json;
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
 std::map<int, Client*> Client::instances{};
 
 Client::Client(WS* socket, int id)
-    : socket(socket), id(id), Entity(0, 0), movement(XY(0, 0)) {
+    : socket(socket), id(id), disconnected(false),
+      Entity(util::randint(config::MAP_WIDTH),
+             util::randint(config::MAP_HEIGHT), util::randint(100)),
+      movement(XY(0, 0)) {
   instances[id] = this;
+  entityId = this->getId();
 };
-Client::~Client() { socket->close(); }
+Client::~Client() {
+  Entity::instances.erase(entityId);
+  disconnected = true;
+  socket->close();
+}
 
 void Client::tick() {
   vel += movement;
 
-  json message;
+  rapidjson::StringBuffer s;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
-  message.push_back(1);
+  writer.StartArray();
+  writer.Int(1);
+
   for (auto& e : Entity::instances) {
-    message.push_back(e.second->encode());
+    auto doc = e.second->encode();
+    doc.Accept(writer);
   }
+  writer.EndArray();
 
-  talk(message.dump());
+  talk(s.GetString());
 }
 
 void Client::talk(std::string message) {
   socket->send(message, uWS::OpCode::TEXT);
 }
 void Client::handleMessage(std::string message) {
-  Util::trim(message);
+  util::trim(message);
   std::cout << "Message from client " << id << " received: " << message << '\n';
 
-  try {
-    json j = json::parse(message);
+  rapidjson::Document doc;
+  doc.Parse(message.c_str());
 
-    if (j.size() == 3 && j[0] == MessageType::Movement && j[1].is_number() &&
-        j[2].is_number()) { // movement packet
-
-      double m = j[1];
-      bool moving = j[2].get<int>() & 1;
-      movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
-    }
-  } catch (...) {
-  } // invalid packet received*/
+  if (doc.Size() == 3 && doc[0].GetInt() == 0 && doc[1].IsNumber() &&
+      doc[2].IsNumber()) { // movement packet
+    double m = doc[1].GetDouble();
+    bool moving = doc[2].GetInt() & 1;
+    movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
+  }
 }
 void Client::kick() {
   instances.erase(id);

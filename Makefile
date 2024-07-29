@@ -1,7 +1,6 @@
 CXX := g++
 CXXFLAGS := -std=c++20 -g
-LIBFLAGS := -lusockets -lz -ljsoncpp #-lboost_system -lssl -lcrypto
-INCLUDES := -Isrc/ #-L/usr/include/websocketpp -I/usr/include/boost
+LIBFLAGS := -lusockets -lz
 SRC_DIR := src
 TARGET := server
 
@@ -12,8 +11,6 @@ all: ${TARGET}
 
 ${TARGET}: ${OBJ_FILES}
 	${CXX} ${CXXFLAGS} ${OBJ_FILES} -o ${TARGET} ${LIBFLAGS}
-
-${OBJ_FILES}: src/config.h
 
 %.o: %.cpp
 	${CXX} ${CXXFLAGS} -c $< -o $@
