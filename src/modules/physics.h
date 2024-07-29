@@ -1,26 +1,21 @@
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include <cstdint>
+#include <cstring>
 #include <string>
+#include <vector>
 
 struct Map {
   Map(int w, int h) : width(w), height(h) {}
   int width, height;
 
-  rapidjson::Document encode() {
-    rapidjson::StringBuffer s;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+  std::vector<uint8_t> encode() {
+    std::vector<uint8_t> buffer(sizeof(int) * 2);
+    uint8_t* ptr = buffer.data();
 
-    writer.StartObject();
-    writer.Key("width");
-    writer.Int(width);
-    writer.Key("height");
-    writer.Int(height);
-    writer.EndObject();
+    memcpy(ptr, &width, sizeof(width));
+    ptr += sizeof(int);
 
-    rapidjson::Document d;
-    d.Parse(s.GetString());
+    memcpy(ptr, &height, sizeof(height));
 
-    return d;
+    return buffer;
   }
 };

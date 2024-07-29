@@ -1,10 +1,14 @@
 #include "server.h"
 #include "config.h"
 #include "physics.h"
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
 #include <libusockets.h>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
+#include <uWebSockets/WebSocketProtocol.h>
 
 us_listen_socket_t* listenSocket;
 us_timer_t* delayTimer;
@@ -40,34 +44,34 @@ void server::socketOpen(WS* ws) {
 
   Client* client = new Client(ws, id);
 
-  rapidjson::StringBuffer s;
-  rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+  std::vector<uint8_t> buffer(3 * sizeof(int));
+  uint8_t* ptr = buffer.data();
 
-  writer.StartArray();
-  writer.Int(0);
-  writer.StartObject();
-  writer.Key("id");
-  writer.Int(client->getEntityId());
-  writer.Key("map");
+  memcpy(ptr, &id, sizeof(int));
+  ptr += sizeof(int);
 
-  auto doc = map.encode();
-  doc.Accept(writer);
+  std::vector<uint8_t> m = map.encode();
 
-  writer.EndObject();
-  writer.EndArray();
+  memcpy(ptr, m.data(), m.size());
 
-  client->talk(s.GetString());
+  std::string_view dataView(reinterpret_cast<char*>(buffer.data()),
+                            buffer.size());
+
+  client->talk(dataView);
 
   std::cout << "Client " << id << " connected from "
             << ws->getRemoteAddressAsText() << '\n';
 }
 
 void server::socketMessage(WS* ws, std::string_view message,
-                           uWS::OpCode /*opCode*/) {
+                           uWS::OpCode opCode) {
+  if (opCode != uWS::OpCode::BINARY)
+    return;
+
   int id = ws->getUserData()->id;
 
   Client* client = Client::instances[id];
-  client->handleMessage(std::string{message});
+  client->handleMessage(message);
 }
 
 void server::socketClose(WS* ws, int /*code*/, std::string_view /*message*/) {

@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <map>
@@ -26,7 +27,24 @@ struct EntityState {
   double x, y;
   float size;
 
-  unsigned char* serialize() { return reinterpret_cast<unsigned char*>(this); }
+  std::vector<uint8_t> serialize() {
+    std::vector<uint8_t> buffer(2 * sizeof(double) + sizeof(float) +
+                                sizeof(int));
+    uint8_t* ptr = buffer.data();
+
+    memcpy(ptr, &x, sizeof(double));
+    ptr += sizeof(double);
+
+    memcpy(ptr, &y, sizeof(double));
+    ptr += sizeof(double);
+
+    memcpy(ptr, &size, sizeof(float));
+    ptr += sizeof(float);
+
+    memcpy(ptr, &id, sizeof(int));
+
+    return buffer;
+  }
 };
 
 class Entity {
@@ -40,7 +58,7 @@ public:
   void tick();
   void stayInBounds(int x, int y, int width, int height);
 
-  rapidjson::Document encode();
+  std::vector<uint8_t> encode();
 
 private:
   int id;

@@ -11,12 +11,6 @@ void tick();
 us_timer_t* setupLoop();
 
 int main() {
-  EntityState s = {1, 400.3, 507.2, 30};
-  auto thing = s.serialize();
-  for (int i = 0; i < sizeof(s); ++i) {
-    printf("%02x", thing[i]);
-  }
-  std::cout << '\n';
   /*
   for (int i = 0; i < 100; ++i) {
     auto n =

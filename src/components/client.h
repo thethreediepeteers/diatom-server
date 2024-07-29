@@ -1,5 +1,6 @@
 #include "../modules/util.h"
 #include "entity.h"
+#include <string_view>
 #include <uWebSockets/App.h>
 
 struct SocketData {
@@ -16,8 +17,8 @@ public:
 
   void tick();
 
-  void talk(std::string message);
-  void handleMessage(std::string message);
+  void talk(std::string_view message);
+  void handleMessage(std::string_view message);
   void kick();
 
   int getEntityId() { return entityId; };
