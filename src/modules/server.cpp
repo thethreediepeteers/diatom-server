@@ -47,7 +47,8 @@ void server::socketOpen(WS* ws) {
   std::vector<uint8_t> buffer(3 * sizeof(int));
   uint8_t* ptr = buffer.data();
 
-  memcpy(ptr, &id, sizeof(int));
+  int entityId = client->getEntityId();
+  memcpy(ptr, &entityId, sizeof(int));
   ptr += sizeof(int);
 
   std::vector<uint8_t> m = map.encode();

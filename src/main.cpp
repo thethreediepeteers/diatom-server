@@ -11,13 +11,13 @@ void tick();
 us_timer_t* setupLoop();
 
 int main() {
-  /*
+
   for (int i = 0; i < 100; ++i) {
     auto n =
         new Entity(util::randint(config::MAP_WIDTH),
                    util::randint(config::MAP_HEIGHT), util::randint(35, 70));
   }
-       */
+
   setupSignals();
   server::run(PORT, setupLoop());
 
