@@ -1,4 +1,3 @@
-#include "../modules/util.h"
 #include "entity.h"
 #include <string_view>
 #include <uWebSockets/App.h>
@@ -17,16 +16,14 @@ public:
 
   void tick();
 
-  void talk(std::string_view message);
+  void talk(std::string_view message) const;
   void handleMessage(std::string_view message);
-  void kick();
+  void kick() const;
 
-  int getEntityId() { return entityId; };
-  bool isDead() { return disconnected; };
+  int getEntityId() const { return entityId; };
+  bool isDead() const { return disconnected; };
 
 private:
-  enum class MessageType { Movement };
-
   WS* socket;
   bool disconnected;
 

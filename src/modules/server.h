@@ -1,4 +1,4 @@
-#include "../components/client.h"
+#include "components/client.h"
 #include <uWebSockets/App.h>
 
 namespace server {

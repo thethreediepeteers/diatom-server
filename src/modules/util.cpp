@@ -1,25 +1,29 @@
 #include "util.h"
-#include <random>
 
-std::string util::trim(std::string& s) {
-  const std::string whitespace = " \t\n\r\f\v";
+namespace util {
+  HexColor HexColor::fromString(const std::string& hex) {
+    uint8_t r = std::stoi(hex.substr(1, 2), 0, 16);
+    uint8_t g = std ::stoi(hex.substr(3, 2), 0, 16);
+    uint8_t b = std::stoi(hex.substr(5, 2), 0, 16);
 
-  size_t firstNonSpace = s.find_first_not_of(whitespace);
-  s.erase(0, firstNonSpace);
+    return HexColor(r, g, b);
+  }
 
-  size_t lastNonSpace = s.find_last_not_of(whitespace);
-  s.erase(lastNonSpace + 1);
+  std::vector<uint8_t> HexColor::encode() const {
+    std::vector<uint8_t> buffer(3);
+    buffer[0] = r;
+    buffer[1] = g;
+    buffer[2] = b;
 
-  return s;
-}
+    return buffer;
+  }
 
-int util::randint(int min, int max) {
-  std::random_device rd;
-  std::default_random_engine engine(rd());
+  std::default_random_engine& getEngine() {
+    static std::default_random_engine engine(std::random_device{}());
+    return engine;
+  }
 
-  std::uniform_int_distribution<> dis(min, max);
-
-  return dis(engine);
-}
-
-int util::randint(int max) { return randint(0, max); }
+  HexColor randcolor() {
+    return HexColor(rand<uint8_t>(255), rand<uint8_t>(255), rand<uint8_t>(255));
+  }
+} // namespace util

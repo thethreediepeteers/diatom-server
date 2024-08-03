@@ -1,21 +1,24 @@
 #include <cstdint>
-#include <cstring>
-#include <string>
 #include <vector>
 
+struct XY {
+  double x, y;
+  XY(double x, double y) : x(x), y(y) {}
+
+  void operator+=(const XY& other) {
+    x += other.x;
+    y += other.y;
+  }
+  void operator*=(double n) {
+    x *= n;
+    y *= n;
+  }
+};
+
 struct Map {
-  Map(int w, int h) : width(w), height(h) {}
   int width, height;
 
-  std::vector<uint8_t> encode() {
-    std::vector<uint8_t> buffer(sizeof(int) * 2);
-    uint8_t* ptr = buffer.data();
+  Map(int width, int height) : width(width), height(height) {}
 
-    memcpy(ptr, &width, sizeof(width));
-    ptr += sizeof(int);
-
-    memcpy(ptr, &height, sizeof(height));
-
-    return buffer;
-  }
+  std::vector<uint8_t> encode() const;
 };

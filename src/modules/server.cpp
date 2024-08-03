@@ -1,14 +1,7 @@
 #include "server.h"
 #include "config.h"
-#include "physics.h"
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
-#include <libusockets.h>
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
-#include <uWebSockets/WebSocketProtocol.h>
 
 us_listen_socket_t* listenSocket;
 us_timer_t* delayTimer;

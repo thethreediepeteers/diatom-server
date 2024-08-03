@@ -1,12 +1,12 @@
 #include "entity.h"
-#include <iostream>
-#include <vector>
+#include <cstring>
 
+// initalize static variables
 std::map<int, Entity*> Entity::instances{};
 int Entity::counter{};
 
-Entity::Entity(double x, double y, int s)
-    : id(counter++), pos(XY(x, y)), size(s), vel(XY(0, 0)) {
+Entity::Entity(double x, double y, float s, util::HexColor c)
+    : id(counter++), pos(XY(x, y)), size(s), color(c), vel(XY(0, 0)) {
   instances[id] = this;
 }
 Entity::~Entity() {}
@@ -15,6 +15,7 @@ void Entity::tick() {
   pos += vel;
   vel *= 0.8;
 }
+
 void Entity::stayInBounds(int x, int y, int width, int height) {
   if (pos.x - size < 0)
     vel.x += (pos.x) / 3;
@@ -26,6 +27,24 @@ void Entity::stayInBounds(int x, int y, int width, int height) {
   else if (pos.y + size > height)
     vel.y += (pos.y - height) / 3;
 }
-std::vector<uint8_t> Entity::encode() {
-  return EntityState(id, pos.x, pos.y, size).serialize();
+std::vector<uint8_t> Entity::encode() const {
+  std::vector<uint8_t> buffer(2 * sizeof(double) + sizeof(float) + sizeof(int) +
+                              3 /*for color*/);
+  uint8_t* ptr = buffer.data();
+
+  memcpy(ptr, &pos.x, sizeof(double));
+  ptr += sizeof(double);
+
+  memcpy(ptr, &pos.y, sizeof(double));
+  ptr += sizeof(double);
+
+  memcpy(ptr, &size, sizeof(float));
+  ptr += sizeof(float);
+
+  memcpy(ptr, &id, sizeof(int));
+  ptr += sizeof(int);
+
+  memcpy(ptr, color.encode().data(), 3);
+
+  return buffer;
 }

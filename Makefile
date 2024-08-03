@@ -1,6 +1,7 @@
 CXX := g++
 CXXFLAGS := -std=c++20 -g
 LIBFLAGS := -lusockets -lz
+INCLUDES := -Isrc/
 SRC_DIR := src
 TARGET := server
 
@@ -13,7 +14,7 @@ ${TARGET}: ${OBJ_FILES}
 	${CXX} ${CXXFLAGS} ${OBJ_FILES} -o ${TARGET} ${LIBFLAGS}
 
 %.o: %.cpp
-	${CXX} ${CXXFLAGS} -c $< -o $@
+	${CXX} ${CXXFLAGS} ${INCLUDES} -c $< -o $@
 
 clean:
 	rm -rf ${TARGET} ${OBJ_FILES}
