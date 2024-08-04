@@ -2,10 +2,13 @@
 #include "config.h"
 #include <cstdint>
 #include <cstring>
+#include <map>
+#include <string_view>
 
 us_listen_socket_t* listenSocket;
 us_timer_t* delayTimer;
 Map map(config::MAP_WIDTH, config::MAP_HEIGHT);
+std::map<std::string_view, int> ips;
 
 void server::run(int port, us_timer_t* timer) {
   delayTimer = timer;
@@ -30,6 +33,14 @@ void server::run(int port, us_timer_t* timer) {
 
 int counter = 0;
 void server::socketOpen(WS* ws) {
+  std::string_view ip = ws->getRemoteAddressAsText();
+
+  ++ips[ip];
+  if (ips[ip] > 3) {
+    ws->end(1008, "IP limit");
+    return;
+  }
+
   int id = counter++;
 
   SocketData* data = ws->getUserData();
@@ -53,8 +64,7 @@ void server::socketOpen(WS* ws) {
 
   client->talk(dataView);
 
-  std::cout << "Client " << id << " connected from "
-            << ws->getRemoteAddressAsText() << '\n';
+  std::cout << "Client " << id << " connected from " << ip << '\n';
 }
 
 void server::socketMessage(WS* ws, std::string_view message,
@@ -68,12 +78,17 @@ void server::socketMessage(WS* ws, std::string_view message,
   client->handleMessage(message);
 }
 
-void server::socketClose(WS* ws, int /*code*/, std::string_view /*message*/) {
+void server::socketClose(WS* ws, int code, std::string_view /*message*/) {
+  if (code == 1008)
+    return;
   int id = ws->getUserData()->id;
+  --ips[ws->getRemoteAddressAsText()];
 
   std::cout << "Client " << id << " disconnected" << '\n';
 
   Client* client = Client::instances[id];
+  if (!client)
+    return;
   if (!client->isDead()) {
     Client::instances.erase(id);
     delete client;
