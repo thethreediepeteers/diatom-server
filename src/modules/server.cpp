@@ -35,10 +35,12 @@ int counter = 0;
 void server::socketOpen(WS* ws) {
   std::string_view ip = ws->getRemoteAddressAsText();
 
-  ++ips[ip];
-  if (ips[ip] > 3) {
-    ws->end(1008, "IP limit");
-    return;
+  if (config::IP_LIMIT > 0) {
+    ++ips[ip];
+    if (ips[ip] > config::IP_LIMIT) {
+      ws->end(1008, "IP limit");
+      return;
+    }
   }
 
   int id = counter++;
@@ -79,7 +81,8 @@ void server::socketMessage(WS* ws, std::string_view message,
 }
 
 void server::socketClose(WS* ws, int code, std::string_view /*message*/) {
-  --ips[ws->getRemoteAddressAsText()];
+  if (config::IP_LIMIT > 0)
+    --ips[ws->getRemoteAddressAsText()];
   if (code == 1008)
     return;
 
