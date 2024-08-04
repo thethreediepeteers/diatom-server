@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++20 -g
+CXXFLAGS := -std=c++20 -g -fsanitize=address
 LIBFLAGS := -lusockets -lz
 INCLUDES := -Isrc/
 SRC_DIR := src

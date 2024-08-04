@@ -31,4 +31,5 @@ private:
   int entityId;
 
   XY movement;
+  XY mouse;
 };

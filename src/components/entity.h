@@ -9,7 +9,7 @@ public:
   static std::map<int, Entity*> instances;
   static int counter;
 
-  Entity(double x, double y, float s, util::HexColor c);
+  Entity(double x, double y, float s, uint8_t shape, util::HexColor c);
   virtual ~Entity();
 
   void tick();
@@ -25,6 +25,9 @@ protected:
 
   XY pos;
   float size;
+  float angle;
+  uint8_t shape;
+
   util::HexColor color;
 
   XY vel;
