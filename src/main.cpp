@@ -1,6 +1,8 @@
 #include "modules/config.h"
 #include "modules/server.h"
 #include <csignal>
+#include <cstdint>
+#include <numbers>
 
 const int PORT = 3000;
 const int FPS = 30;
@@ -10,6 +12,12 @@ void tick();
 us_timer_t* setupLoop();
 
 int main() {
+  /*for (int i = 0; i < 1000; ++i) {
+    new Entity(util::rand<int>(config::MAP_WIDTH),
+               util ::rand<int>(config::MAP_HEIGHT), util::rand<float>(35, 75),
+               util::rand<float>(std::numbers::pi), util::rand<uint8_t>(3, 15),
+               util::randcolor());
+  }*/
   setupSignals();
   server::run(PORT, setupLoop());
 

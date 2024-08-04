@@ -5,9 +5,10 @@
 std::map<int, Entity*> Entity::instances{};
 int Entity::counter{};
 
-Entity::Entity(double x, double y, float s, uint8_t shape, util::HexColor c)
-    : id(counter++), pos(XY(x, y)), size(s), shape(shape), angle(0), color(c),
-      vel(XY(0, 0)) {
+Entity::Entity(double x, double y, float s, float angle, uint8_t shape,
+               util::HexColor c)
+    : id(counter++), pos(XY(x, y)), size(s), angle(angle), shape(shape),
+      color(c), vel(XY(0, 0)) {
   instances[id] = this;
 }
 Entity::~Entity() {}
