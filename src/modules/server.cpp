@@ -79,10 +79,11 @@ void server::socketMessage(WS* ws, std::string_view message,
 }
 
 void server::socketClose(WS* ws, int code, std::string_view /*message*/) {
+  --ips[ws->getRemoteAddressAsText()];
   if (code == 1008)
     return;
+
   int id = ws->getUserData()->id;
-  --ips[ws->getRemoteAddressAsText()];
 
   std::cout << "Client " << id << " disconnected" << '\n';
 
