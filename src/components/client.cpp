@@ -51,39 +51,36 @@ void Client::handleMessage(std::string_view message) {
   if (message.size() != 2 * sizeof(short) + sizeof(float) + sizeof(int))
     return;
 
-  try {
-    short mx;
-    short my;
-    float m;
-    int flags;
+  short mx;
+  short my;
+  float m;
+  int flags;
 
-    auto ptr = message.data();
+  auto ptr = message.data();
 
-    memcpy(&mx, ptr, sizeof(short));
-    ptr += sizeof(short);
+  memcpy(&mx, ptr, sizeof(short));
+  ptr += sizeof(short);
 
-    memcpy(&my, ptr, sizeof(short));
-    ptr += sizeof(short);
+  memcpy(&my, ptr, sizeof(short));
+  ptr += sizeof(short);
 
-    memcpy(&m, ptr, sizeof(float));
-    ptr += sizeof(float);
+  memcpy(&m, ptr, sizeof(float));
+  ptr += sizeof(float);
 
-    memcpy(&flags, ptr, sizeof(int));
+  memcpy(&flags, ptr, sizeof(int));
 
-    bool moving = flags & static_cast<int>(Flag::MOVING);
-    bool lmb = flags & static_cast<int>(Flag::LMB);
-    bool rmb = flags & static_cast<int>(Flag::RMB);
+  bool moving = flags & static_cast<int>(Flag::MOVING);
+  bool lmb = flags & static_cast<int>(Flag::LMB);
+  bool rmb = flags & static_cast<int>(Flag::RMB);
 
-    movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
-    if (lmb)
-      define("test");
-    else if (rmb)
-      define("aggressor");
+  movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
+  if (lmb)
+    define("test");
+  else if (rmb)
+    define("aggressor");
 
-    mouse = XY(mx, my);
-    angle = atan2(my, mx);
-  } catch (...) {
-  }
+  mouse = XY(mx, my);
+  angle = atan2(my, mx);
 }
 void Client::kick() const {
   instances.erase(id);
