@@ -1,19 +1,19 @@
+#pragma once
+
 #include <cstdint>
 #include <random>
 #include <string>
 #include <vector>
 
 namespace util {
-  class HexColor {
-  public:
-    HexColor(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
+  struct HexColor {
+    uint8_t r, g, b;
 
-    static HexColor fromString(const std::string& hex);
+    HexColor();
+    HexColor(uint8_t r, uint8_t g, uint8_t b) : r(r), g(g), b(b) {}
+    HexColor(const std::string& hex);
 
     std::vector<uint8_t> encode() const;
-
-  private:
-    uint8_t r, g, b;
   };
 
   std::default_random_engine& getEngine();

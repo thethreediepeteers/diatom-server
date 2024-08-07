@@ -1,22 +1,16 @@
 #include "util.h"
+#include <cassert>
 
 namespace util {
-  HexColor HexColor::fromString(const std::string& hex) {
-    uint8_t r = std::stoi(hex.substr(1, 2), 0, 16);
-    uint8_t g = std ::stoi(hex.substr(3, 2), 0, 16);
-    uint8_t b = std::stoi(hex.substr(5, 2), 0, 16);
-
-    return HexColor(r, g, b);
+  HexColor::HexColor() { *this = randcolor(); }
+  HexColor::HexColor(const std::string& hex) {
+    assert(hex.size() == 7 && hex[0] == '#');
+    r = std::stoi(hex.substr(1, 2), 0, 16);
+    g = std ::stoi(hex.substr(3, 2), 0, 16);
+    b = std::stoi(hex.substr(5, 2), 0, 16);
   }
 
-  std::vector<uint8_t> HexColor::encode() const {
-    std::vector<uint8_t> buffer(3);
-    buffer[0] = r;
-    buffer[1] = g;
-    buffer[2] = b;
-
-    return buffer;
-  }
+  std::vector<uint8_t> HexColor::encode() const { return {r, g, b}; }
 
   std::default_random_engine& getEngine() {
     static std::default_random_engine engine(std::random_device{}());

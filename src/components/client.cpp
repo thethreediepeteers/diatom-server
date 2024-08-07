@@ -5,30 +5,30 @@
 #include <cstring>
 #include <iostream>
 #include <numbers>
-#include <vector>
 
 std::map<int, Client*> Client::instances{};
 
 Client::Client(WS* socket, int id)
     : socket(socket), id(id), disconnected(false),
       Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT),
-             util::rand<float>(35, 75), util::rand<float>(0, std::numbers::pi),
-             util::rand<uint8_t>(3, 15), util::randcolor()),
+             util::rand<float>(0, std::numbers::pi), util::rand<uint8_t>(3, 15),
+             util::randcolor()),
       movement(XY(0, 0)), mouse(XY(0, 0)) {
   instances[id] = this;
   entityId = this->getId();
+  define("aggressor");
 };
 
 Client::~Client() {
   Entity::instances.erase(entityId);
   disconnected = true;
-  socket->close();
+  socket->end();
 }
 
 void Client::tick() {
   vel += movement;
 
-  size_t entitySize = sizeof(int) + sizeof(double) * 2 + sizeof(float) * 2 +
+  size_t entitySize = sizeof(int) * 2 + sizeof(double) * 2 + sizeof(float) * 2 +
                       4; // 4: shape (1), color (3)
   std::vector<uint8_t> buffer(Entity::instances.size() * entitySize);
   uint8_t* ptr = buffer.data();
@@ -70,10 +70,15 @@ void Client::handleMessage(std::string_view message) {
 
     memcpy(&flags, ptr, sizeof(int));
 
-    bool moving = flags & 1;
-    bool lmb = flags & 2;
+    bool moving = flags & static_cast<int>(Flag::MOVING);
+    bool lmb = flags & static_cast<int>(Flag::LMB);
+    bool rmb = flags & static_cast<int>(Flag::RMB);
 
     movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
+    if (lmb)
+      define("test");
+    else if (rmb)
+      define("aggressor");
 
     mouse = XY(mx, my);
     angle = atan2(my, mx);

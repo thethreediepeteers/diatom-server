@@ -2,6 +2,8 @@
 #include "config.h"
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 #include <map>
 #include <string_view>
 
@@ -17,6 +19,15 @@ void server::run(int port, us_timer_t* timer) {
       .ws<SocketData>(
           "/ws",
           {.open = socketOpen, .message = socketMessage, .close = socketClose})
+      .get("/mockups",
+           [](auto* res, auto* req) {
+             std::string data;
+             std::ifstream ifs{"mockups.hex"};
+             ifs >> data;
+
+             res->writeHeader("Access-Control-Allow-Origin", "*");
+             res->end(data);
+           })
       .listen(port,
               [port](auto* token) {
                 listenSocket = token;
@@ -102,12 +113,14 @@ void server::socketClose(WS* ws, int code, std::string_view /*message*/) {
 void server::cleanup(int signal) {
   std::cout << '\n';
 
+  std::filesystem::remove("mockups.hex");
   us_timer_close(delayTimer);
   us_listen_socket_close(0, listenSocket);
 
   for (auto c : Client::instances) {
     delete c.second;
   }
+
   Client::instances.clear();
 
   for (auto e : Entity::instances) {

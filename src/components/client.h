@@ -32,4 +32,6 @@ private:
 
   XY movement;
   XY mouse;
+
+  enum class Flag { MOVING = 1, LMB = 2, RMB = 4 };
 };
