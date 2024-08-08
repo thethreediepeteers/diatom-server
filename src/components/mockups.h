@@ -1,6 +1,8 @@
-#include "modules/util.h"
+#include <cstdint>
 #include <cstring>
 #include <map>
+#include <string>
+#include <vector>
 
 struct Gun {
   short length;
@@ -8,6 +10,7 @@ struct Gun {
   float xOffset;
   float yOffset;
   float angle;
+
   std::vector<uint8_t> encode() const {
     std::vector<uint8_t> buffer(2 * sizeof(short) + 3 * sizeof(float));
     uint8_t* ptr = buffer.data();
@@ -101,4 +104,4 @@ struct Definition {
   }
 };
 
-std::vector<uint8_t> generateMockups();
+void generateMockups();

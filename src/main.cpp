@@ -1,11 +1,6 @@
 #include "modules/config.h"
 #include "modules/server.h"
 #include <csignal>
-#include <cstdint>
-#include <fstream>
-#include <iomanip>
-#include <ios>
-#include <numbers>
 
 const int PORT = 3000;
 const int FPS = 30;
@@ -15,24 +10,9 @@ void tick();
 us_timer_t* setupLoop();
 
 int main() {
-  std::ofstream ofs{"mockups.hex"};
-  ofs << std::hex << std::setfill('0');
-
-  std::vector<uint8_t> mockups = generateMockups();
-  for (uint8_t u : mockups) {
-    ofs << std::setw(2) << (int)u;
-  }
-  ofs.close();
-
-  /*
-  for (int i = 0; i < 100; ++i) {
-    new Entity(util::rand<int>(config::MAP_WIDTH),
-               util ::rand<int>(config::MAP_HEIGHT), util::rand<float>(35,
-  75), util::rand<float>(std::numbers::pi), util::rand<uint8_t>(3, 15),
-               util::randcolor());
-  }
-       */
+  generateMockups();
   setupSignals();
+
   server::run(PORT, setupLoop());
 
   std::cout << "Server successfully shut down" << '\n';

@@ -1,6 +1,6 @@
 #include "entity.h"
+#include "modules/config.h"
 #include <cstring>
-#include <iostream>
 
 // initalize static variables
 std::map<int, Entity*> Entity::instances{};
@@ -19,17 +19,15 @@ void Entity::tick() {
 }
 
 void Entity::stayInBounds(int x, int y, int width, int height) {
-  int bounce = 3;
-
   if (pos.x < 0)
-    vel.x -= (pos.x) / bounce;
+    vel.x -= (pos.x) / config::ROOM_BOUNCE;
   else if (pos.x > width)
-    vel.x -= (pos.x - width) / bounce;
+    vel.x -= (pos.x - width) / config::ROOM_BOUNCE;
 
   if (pos.y < 0)
-    vel.y -= (pos.y) / bounce;
+    vel.y -= (pos.y) / config::ROOM_BOUNCE;
   else if (pos.y > height)
-    vel.y -= (pos.y - height) / bounce;
+    vel.y -= (pos.y - height) / config::ROOM_BOUNCE;
 }
 
 std::vector<uint8_t> Entity::encode() const {

@@ -1,5 +1,6 @@
 #include "mockups.h"
-#include <ostream>
+#include <fstream>
+#include <iomanip>
 
 Definition aggressor = {.size = 35,
                         .shape = 0,
@@ -9,14 +10,14 @@ Definition aggressor = {.size = 35,
                             .yOffset = 10,
                         }}};
 
-Definition adfa = {.size = 100, .shape = 3};
+Definition adfa = {.size = 100, .shape = 9};
 
 std::map<std::string, Definition> Definition::definitions = {
     {"aggressor", aggressor}, {"test", adfa}};
 
 int Definition::counter = 0;
 
-std::vector<uint8_t> generateMockups() {
+void generateMockups() {
   int size = 0;
   std::vector<std::vector<uint8_t>> encodedData;
   for (auto& d : Definition::definitions) {
@@ -34,5 +35,11 @@ std::vector<uint8_t> generateMockups() {
     ptr += d.size();
   }
 
-  return mockups;
+  std::ofstream ofs{"mockups.hex"};
+  ofs << std::hex << std::setfill('0');
+
+  for (uint8_t u : mockups) {
+    ofs << std::setw(2) << (int)u;
+  }
+  ofs.close();
 }

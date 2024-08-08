@@ -4,15 +4,13 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
-#include <numbers>
 
 std::map<int, Client*> Client::instances{};
 
 Client::Client(WS* socket, int id)
     : socket(socket), id(id), disconnected(false),
-      Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT),
-             util::rand<float>(0, std::numbers::pi), util::rand<uint8_t>(3, 15),
-             util::randcolor()),
+      Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT), 0,
+             util::rand<uint8_t>(3, 15), util::randcolor()),
       movement(XY(0, 0)), mouse(XY(0, 0)) {
   instances[id] = this;
   entityId = this->getId();
