@@ -10,9 +10,10 @@ struct Gun {
   float xOffset;
   float yOffset;
   float angle;
+  float aspect;
 
   std::vector<uint8_t> encode() const {
-    std::vector<uint8_t> buffer(2 * sizeof(short) + 3 * sizeof(float));
+    std::vector<uint8_t> buffer(2 * sizeof(short) + 4 * sizeof(float));
     uint8_t* ptr = buffer.data();
 
     memcpy(ptr, &length, sizeof(short));
@@ -25,6 +26,8 @@ struct Gun {
     memcpy(ptr, &yOffset, sizeof(float));
     ptr += sizeof(float);
     memcpy(ptr, &angle, sizeof(float));
+    ptr += sizeof(float);
+    memcpy(ptr, &aspect, sizeof(float));
 
     return buffer;
   }
@@ -65,7 +68,7 @@ struct Definition {
   std::vector<Turret> turrets;
 
   std::vector<uint8_t> encode() {
-    int gunsSize = guns.size() * (2 * sizeof(short) + 3 * sizeof(float));
+    int gunsSize = guns.size() * (2 * sizeof(short) + 4 * sizeof(float));
     int turretsSize = turrets.size() * (sizeof(short) + 2 * sizeof(float) + 1);
 
     std::vector<uint8_t> buffer(sizeof(int) + sizeof(short) + 1 + sizeof(int) +

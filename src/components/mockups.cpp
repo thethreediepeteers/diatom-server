@@ -2,13 +2,10 @@
 #include <fstream>
 #include <iomanip>
 
-Definition aggressor = {.size = 35,
-                        .shape = 0,
-                        .guns = {{
-                            .length = 100,
-                            .width = 30,
-                            .yOffset = 10,
-                        }}};
+Definition aggressor = {
+    .size = 35,
+    .shape = 0,
+    .guns = {{.length = 100, .width = 30, .yOffset = 10, .aspect = 0.5}}};
 
 Definition adfa = {.size = 100, .shape = 9};
 
