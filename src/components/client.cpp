@@ -20,7 +20,7 @@ Client::Client(WS* socket, int id)
 Client::~Client() {
   Entity::instances.erase(entityId);
   disconnected = true;
-  socket->end();
+  socket->close();
 }
 
 void Client::tick() {
