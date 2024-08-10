@@ -1,31 +1,37 @@
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <map>
+#include <numbers>
 #include <string>
 #include <vector>
 
 struct Gun {
-  short length;
-  short width;
+  float length;
+  float width;
   float xOffset;
   float yOffset;
   float angle;
   float aspect;
 
   std::vector<uint8_t> encode() const {
-    std::vector<uint8_t> buffer(2 * sizeof(short) + 4 * sizeof(float));
+    std::vector<uint8_t> buffer(6 * sizeof(float));
     uint8_t* ptr = buffer.data();
 
-    memcpy(ptr, &length, sizeof(short));
-    ptr += sizeof(short);
-    memcpy(ptr, &width, sizeof(short));
-    ptr += sizeof(short);
+    memcpy(ptr, &length, sizeof(float));
+    ptr += sizeof(float);
+    memcpy(ptr, &width, sizeof(float));
+    ptr += sizeof(float);
 
-    memcpy(ptr, &xOffset, sizeof(float));
+    float offset = std::sqrt(std::pow(xOffset, 2) + std::pow(yOffset, 2));
+    float direction = std::atan2(xOffset, yOffset);
+    memcpy(ptr, &offset, sizeof(float));
     ptr += sizeof(float);
-    memcpy(ptr, &yOffset, sizeof(float));
+    memcpy(ptr, &direction, sizeof(float));
     ptr += sizeof(float);
-    memcpy(ptr, &angle, sizeof(float));
+
+    float a = angle * std::numbers::pi / 180;
+    memcpy(ptr, &a, sizeof(float));
     ptr += sizeof(float);
     memcpy(ptr, &aspect, sizeof(float));
 
@@ -34,13 +40,14 @@ struct Gun {
 };
 
 struct Turret {
-  short size;
+  float size;
   float xOffset;
   float yOffset;
+  float angle;
   uint8_t shape;
 
   std::vector<uint8_t> encode() const {
-    std::vector<uint8_t> buffer(sizeof(short) + 2 * sizeof(float) + 1);
+    std::vector<uint8_t> buffer(4 * sizeof(float) + 1);
     uint8_t* ptr = buffer.data();
 
     memcpy(ptr, &xOffset, sizeof(float));
@@ -48,8 +55,12 @@ struct Turret {
     memcpy(ptr, &yOffset, sizeof(float));
     ptr += sizeof(float);
 
-    memcpy(ptr, &size, sizeof(short));
-    ptr += sizeof(short);
+    memcpy(ptr, &size, sizeof(float));
+    ptr += sizeof(float);
+
+    float a = angle * std::numbers::pi / 180;
+    memcpy(ptr, &a, sizeof(float));
+    ptr += sizeof(float);
 
     memcpy(ptr, &shape, 1);
 
@@ -62,24 +73,24 @@ struct Definition {
   static std::map<std::string, Definition> definitions;
 
   int id;
-  short size;
+  float size;
   uint8_t shape;
   std::vector<Gun> guns;
   std::vector<Turret> turrets;
 
   std::vector<uint8_t> encode() {
-    int gunsSize = guns.size() * (2 * sizeof(short) + 4 * sizeof(float));
-    int turretsSize = turrets.size() * (sizeof(short) + 2 * sizeof(float) + 1);
+    int gunsSize = guns.size() * (6 * sizeof(float));
+    int turretsSize = turrets.size() * (4 * sizeof(float) + 1);
 
-    std::vector<uint8_t> buffer(sizeof(int) + sizeof(short) + 1 + sizeof(int) +
+    std::vector<uint8_t> buffer(sizeof(int) + sizeof(float) + 1 + sizeof(int) +
                                 gunsSize + sizeof(int) + turretsSize);
     uint8_t* ptr = buffer.data();
 
     memcpy(ptr, &id, sizeof(int));
     ptr += sizeof(int);
 
-    memcpy(ptr, &size, sizeof(short));
-    ptr += sizeof(short);
+    memcpy(ptr, &size, sizeof(float));
+    ptr += sizeof(float);
     memcpy(ptr, &shape, 1);
     ptr += 1;
 

@@ -1,20 +1,24 @@
 #include "mockups.h"
+#include <chrono>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 
-Definition aggressor = {
-    .size = 35,
-    .shape = 0,
-    .guns = {{.length = 100, .width = 30, .yOffset = 10, .aspect = 0.5}}};
-
-Definition adfa = {.size = 100, .shape = 9};
+Definition aggressor = {.size = 32.5,
+                        .shape = 0,
+                        .guns =
+                            {
+                                {.length = 30, .width = 20, .aspect = 1},
+                            },
+                        .turrets = {{.size = 20, .angle = 45, .shape = 4}}};
 
 std::map<std::string, Definition> Definition::definitions = {
-    {"aggressor", aggressor}, {"test", adfa}};
+    {"aggressor", aggressor}};
 
 int Definition::counter = 0;
 
 void generateMockups() {
+  auto startTime = std::chrono::steady_clock::now();
   int size = 0;
   std::vector<std::vector<uint8_t>> encodedData;
   for (auto& d : Definition::definitions) {
@@ -39,4 +43,11 @@ void generateMockups() {
     ofs << std::setw(2) << (int)u;
   }
   ofs.close();
+
+  auto endTime = std::chrono::steady_clock::now();
+
+  std::cout << size << " bytes of mockups generated in "
+            << std::chrono::duration_cast<std::chrono::microseconds>(endTime -
+                                                                     startTime)
+            << '\n';
 }
