@@ -16,6 +16,8 @@ Entity::~Entity() {}
 void Entity::tick() {
   pos += vel;
   vel *= 0.8;
+
+  stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
 }
 
 void Entity::stayInBounds(int x, int y, int width, int height) {

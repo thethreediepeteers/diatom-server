@@ -4,7 +4,9 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <map>
+#include <string>
 #include <string_view>
 
 us_listen_socket_t* listenSocket;
@@ -16,9 +18,21 @@ void server::run(int port, us_timer_t* timer) {
   delayTimer = timer;
 
   uWS::App()
-      .ws<SocketData>(
-          "/ws",
-          {.open = socketOpen, .message = socketMessage, .close = socketClose})
+      .ws<SocketData>("/ws",
+                      {.upgrade =
+                           [](auto* res, auto* req, auto* context) {
+                             std::string_view color = req->getQuery("color");
+
+                             res->template upgrade<SocketData>(
+                                 {.color = std::string{color}},
+                                 req->getHeader("sec-websocket-key"),
+                                 req->getHeader("sec-websocket-protocol"),
+                                 req->getHeader("sec-websocket-extensions"),
+                                 context);
+                           },
+                       .open = socketOpen,
+                       .message = socketMessage,
+                       .close = socketClose})
       .get("/mockups",
            [](auto* res, auto* req) {
              std::string data;
@@ -59,7 +73,13 @@ void server::socketOpen(WS* ws) {
   SocketData* data = ws->getUserData();
   data->id = id;
 
-  Client* client = new Client(ws, id);
+  std::string color = data->color;
+  if (color.size() != 7 || color[0] != '#') {
+    ws->end(1008, "Invalid color");
+    return;
+  }
+
+  Client* client = new Client(ws, id, data->color);
 
   std::vector<uint8_t> buffer(3 * sizeof(int));
   uint8_t* ptr = buffer.data();

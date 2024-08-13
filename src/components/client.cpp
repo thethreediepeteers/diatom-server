@@ -7,11 +7,11 @@
 
 std::map<int, Client*> Client::instances{};
 
-Client::Client(WS* socket, int id)
-    : socket(socket), id(id), disconnected(false),
-      Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT), 0,
-             util::rand<uint8_t>(3, 15), util::randcolor()),
-      movement(XY(0, 0)), mouse(XY(0, 0)) {
+Client::Client(WS* socket, int id, std::string color)
+    : Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT), 0,
+             util::rand<uint8_t>(3, 15), color),
+      socket(socket), disconnected(false), id(id), movement(XY(0, 0)),
+      mouse(XY(0, 0)) {
   instances[id] = this;
   entityId = this->getId();
   define("aggressor");

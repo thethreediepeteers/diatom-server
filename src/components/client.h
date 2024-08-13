@@ -3,6 +3,7 @@
 #include <uWebSockets/App.h>
 
 struct SocketData {
+  std::string color;
   int id;
 };
 using WS = uWS::WebSocket<false, true, SocketData>;
@@ -11,7 +12,7 @@ class Client : Entity {
 public:
   static std::map<int, Client*> instances;
 
-  Client(WS* socket, int id);
+  Client(WS* socket, int id, std::string color);
   ~Client();
 
   void tick();

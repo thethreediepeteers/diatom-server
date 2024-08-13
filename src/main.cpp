@@ -2,9 +2,6 @@
 #include "modules/server.h"
 #include <csignal>
 
-const int PORT = 3000;
-const int FPS = 30;
-
 void setupSignals();
 void tick();
 us_timer_t* setupLoop();
@@ -13,7 +10,8 @@ int main() {
   generateMockups();
   setupSignals();
 
-  server::run(PORT, setupLoop());
+  us_timer_t* loop = setupLoop();
+  server::run(config::SERVER_PORT, loop);
 
   std::cout << "Server successfully shut down" << '\n';
 
@@ -32,14 +30,15 @@ void tick() {
 
   for (auto& entity : Entity::instances) {
     entity.second->tick();
-    entity.second->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
   }
 }
 
 us_timer_t* setupLoop() {
   auto loop = uWS::Loop::get();
   us_timer_t* delayTimer = us_create_timer((us_loop_t*)loop, 0, 0);
-  us_timer_set(delayTimer, [](us_timer_t*) { tick(); }, 1000 / FPS, 1000 / FPS);
+  us_timer_set(
+      delayTimer, [](us_timer_t*) { tick(); }, 1000 / config::SERVER_FPS,
+      1000 / config::SERVER_FPS);
 
   return delayTimer;
 }
