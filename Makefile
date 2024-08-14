@@ -1,6 +1,6 @@
 CXX := g++
 CXXFLAGS := -std=c++20 -g -fsanitize=address -Wall -Werror
-LIBFLAGS := -lusockets -lz
+LIBFLAGS := -Llib/ -luSockets -lz
 INCLUDES := -Iinclude/ -Isrc/
 SRC_DIR := src
 TARGET := server
