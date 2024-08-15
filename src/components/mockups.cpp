@@ -49,5 +49,6 @@ void generateMockups() {
   std::cout << size << " bytes of mockups generated in "
             << std::chrono::duration_cast<std::chrono::microseconds>(endTime -
                                                                      startTime)
+                   .count()
             << '\n';
 }
