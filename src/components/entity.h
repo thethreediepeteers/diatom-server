@@ -10,7 +10,8 @@ public:
   static std::map<int, Entity*> instances;
   static int counter;
 
-  Entity(double x, double y, float angle, uint8_t shape, util::HexColor c);
+  Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
+         hshg* grid);
   virtual ~Entity();
 
   void tick();
@@ -20,11 +21,20 @@ public:
 
   std::vector<uint8_t> encode() const;
 
+  int getId() const { return id; };
+  XY getPos() const { return pos; };
+  float getSize() const { return size; };
+
+  void addVel(const XY other) { vel += other; };
+
+  bool remove;
+
 private:
   int id;
 
+  hshg* grid;
+
 protected:
-  int getId() const { return id; };
   int mockupId;
   XY pos;
   float size;

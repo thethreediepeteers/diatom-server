@@ -12,7 +12,7 @@ class Client : Entity {
 public:
   static std::map<int, Client*> instances;
 
-  Client(WS* socket, int id, std::string color);
+  Client(WS* socket, int id, std::string color, hshg* grid);
   ~Client();
 
   void tick();

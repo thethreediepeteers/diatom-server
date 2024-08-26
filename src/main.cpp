@@ -1,17 +1,21 @@
-#include "modules/config.h"
 #include "modules/server.h"
 #include <csignal>
+#include <iostream>
 
 void setupSignals();
 void tick();
 us_timer_t* setupLoop();
 
+hshg* hshg;
+
 int main() {
   generateMockups();
   setupSignals();
 
+  hshg = initHSHG();
+
   us_timer_t* loop = setupLoop();
-  server::run(config::SERVER_PORT, loop);
+  server::run(config::SERVER_PORT, loop, hshg);
 
   std::cout << "Server successfully shut down" << '\n';
 
@@ -31,6 +35,9 @@ void tick() {
   for (auto& entity : Entity::instances) {
     entity.second->tick();
   }
+
+  hshg_update(hshg);
+  hshg_collide(hshg);
 }
 
 us_timer_t* setupLoop() {

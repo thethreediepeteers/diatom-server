@@ -1,5 +1,4 @@
 #include "client.h"
-#include "modules/config.h"
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -7,18 +6,18 @@
 
 std::map<int, Client*> Client::instances{};
 
-Client::Client(WS* socket, int id, std::string color)
+Client::Client(WS* socket, int id, std::string color, hshg* grid)
     : Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT), 0,
-             util::rand<uint8_t>(3, 15), color),
+             util::rand<uint8_t>(3, 15), color, grid),
       socket(socket), disconnected(false), id(id), movement(XY(0, 0)),
       mouse(XY(0, 0)) {
   instances[id] = this;
   entityId = this->getId();
   define("aggressor");
 };
-
 Client::~Client() {
   Entity::instances.erase(entityId);
+
   disconnected = true;
   socket->close();
 }
@@ -72,10 +71,6 @@ void Client::handleMessage(std::string_view message) {
   bool rmb = flags & static_cast<int>(Flag::RMB);
 
   movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
-  if (lmb)
-    define("test");
-  else if (rmb)
-    define("aggressor");
 
   mouse = XY(mx, my);
   angle = atan2(my, mx);

@@ -1,5 +1,4 @@
 #include "server.h"
-#include "config.h"
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -13,9 +12,11 @@ us_listen_socket_t* listenSocket;
 us_timer_t* delayTimer;
 Map map(config::MAP_WIDTH, config::MAP_HEIGHT);
 std::map<std::string_view, int> ips;
+hshg* grid;
 
-void server::run(int port, us_timer_t* timer) {
+void server::run(int port, us_timer_t* timer, hshg* g) {
   delayTimer = timer;
+  grid = g;
 
   uWS::App()
       .ws<SocketData>("/ws",
@@ -79,7 +80,7 @@ void server::socketOpen(WS* ws) {
     return;
   }
 
-  Client* client = new Client(ws, id, data->color);
+  Client* client = new Client(ws, id, data->color, grid);
 
   std::vector<uint8_t> buffer(3 * sizeof(int));
   uint8_t* ptr = buffer.data();
@@ -140,11 +141,12 @@ void server::cleanup(int signal) {
   for (auto c : Client::instances) {
     delete c.second;
   }
-
   Client::instances.clear();
 
   for (auto e : Entity::instances) {
     delete e.second;
   }
   Entity::instances.clear();
+
+  hshg_free(grid); // TODO: fix crash caused by running this
 }

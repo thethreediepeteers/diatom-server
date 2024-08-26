@@ -1,17 +1,20 @@
 #include "entity.h"
-#include "modules/config.h"
 #include <cstring>
 
 // initalize static variables
 std::map<int, Entity*> Entity::instances{};
 int Entity::counter{};
 
-Entity::Entity(double x, double y, float angle, uint8_t shape, util::HexColor c)
-    : id(counter++), pos(XY(x, y)), angle(angle), shape(shape), color(c),
-      vel(XY(0, 0)) {
+Entity::Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
+               hshg* grid)
+    : remove(false), id(counter++), grid(grid), mockupId(0), pos(XY(x, y)),
+      angle(angle), shape(shape), color(c), vel(XY(0, 0)) {
   instances[id] = this;
+
+  define("base");
+  hshg_insert(grid, pos.x, pos.y, size, id);
 }
-Entity::~Entity() {}
+Entity::~Entity() { remove = true; }
 
 void Entity::tick() {
   pos += vel;
@@ -65,9 +68,6 @@ std::vector<uint8_t> Entity::encode() const {
 
 void Entity::define(std::string what) {
   Definition def = Definition::definitions[what];
-
-  if (mockupId == def.id)
-    return;
 
   mockupId = def.id;
   size = def.size;

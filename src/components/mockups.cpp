@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <iostream>
 
+Definition base = {.size = 32.5, .shape = 0};
+
 Definition aggressor = {.size = 32.5,
                         .shape = 0,
                         .guns =
@@ -13,7 +15,7 @@ Definition aggressor = {.size = 32.5,
                         .turrets = {{.size = 20, .angle = 45, .shape = 4}}};
 
 std::map<std::string, Definition> Definition::definitions = {
-    {"aggressor", aggressor}};
+    {"base", base}, {"aggressor", aggressor}};
 
 int Definition::counter = 0;
 
@@ -50,5 +52,5 @@ void generateMockups() {
             << std::chrono::duration_cast<std::chrono::microseconds>(endTime -
                                                                      startTime)
                    .count()
-            << '\n';
+            << "ms" << '\n';
 }

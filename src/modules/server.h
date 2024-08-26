@@ -2,7 +2,7 @@
 #include <uWebSockets/App.h>
 
 namespace server {
-  void run(int port, us_timer_t* timer);
+  void run(int port, us_timer_t* timer, hshg* grid);
   void cleanup(int signal);
 
   void socketOpen(WS* ws);

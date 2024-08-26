@@ -2,8 +2,9 @@
 .clang-format
 **/.cache/
 compile_commands.json
-.replit
-replit.nix
+perf.data
+perf.data.old
+vgcore.*
 
 # Other
 *.env
