@@ -43,13 +43,6 @@ void updateHSHG(hshg* h, hshg_entity* entity) {
   hshg_move(h);
 }
 void collideHSHG(const hshg* hshg, const hshg_entity* a, const hshg_entity* b) {
-  /* auto ita = Entity::instances.find(a->ref);
-   auto itb = Entity::instances.find(b->ref);
-
-   if (ita == Entity::instances.end() || itb == Entity::instances.end()) {
-     return;
-   }*/
-
   Entity* ea = Entity::instances[a->ref];
   Entity* eb = Entity::instances[b->ref];
 
