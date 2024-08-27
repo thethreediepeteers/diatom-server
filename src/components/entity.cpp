@@ -1,26 +1,41 @@
 #include "entity.h"
+#include "components/controllers.h"
 #include <cstring>
+#include <iostream>
 
 // initalize static variables
 std::map<int, Entity*> Entity::instances{};
+std::vector<int> Entity::toDelete{};
 int Entity::counter{};
 
 Entity::Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
-               hshg* grid)
+               hshg* grid, std::string control, int life)
     : remove(false), id(counter++), grid(grid), mockupId(0), pos(XY(x, y)),
-      angle(angle), shape(shape), color(c), vel(XY(0, 0)) {
+      angle(angle), shape(shape), vel(XY(0, 0)), color(c), life(life) {
   instances[id] = this;
 
   define("base");
   hshg_insert(grid, pos.x, pos.y, size, id);
+
+  if (control == "bullet") {
+    controller = new BulletController(this);
+  } else {
+    controller = new Controller(this);
+  }
 }
-Entity::~Entity() { remove = true; }
+Entity::~Entity() {
+  delete controller;
+  remove = true;
+}
 
 void Entity::tick() {
-  pos += vel;
-  vel *= 0.8;
+  controller->move();
 
-  stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
+  if (life != 0) {
+    if (--life == 0) {
+      toDelete.push_back(id);
+    }
+  }
 }
 
 void Entity::stayInBounds(int x, int y, int width, int height) {
@@ -64,6 +79,14 @@ std::vector<uint8_t> Entity::encode() const {
   memcpy(ptr, color.encode().data(), 3);
 
   return buffer;
+}
+
+void Entity::shoot() {
+  Entity* entity =
+      new Entity(pos.x, pos.y, angle, 1, color, grid, "bullet", 100);
+
+  entity->vel.x = std::cos(entity->angle) * 5;
+  entity->vel.y = std::sin(entity->angle) * 5;
 }
 
 void Entity::define(std::string what) {

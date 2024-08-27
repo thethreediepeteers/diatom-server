@@ -24,7 +24,7 @@ hshg* initHSHG() {
 }
 void updateHSHG(hshg* h, hshg_entity* entity) {
   auto it = Entity::instances.find(entity->ref);
-  if (it == Entity::instances.end() || !it->second) {
+  if (it == Entity::instances.end()) {
     hshg_remove(h);
     return;
   }
@@ -46,16 +46,5 @@ void collideHSHG(const hshg* hshg, const hshg_entity* a, const hshg_entity* b) {
   Entity* ea = Entity::instances[a->ref];
   Entity* eb = Entity::instances[b->ref];
 
-  float dx = a->x - b->x;
-  float dy = a->y - b->y;
-  float distance = dx * dx + dy * dy;
-
-  if (distance <= (a->r + b->r) * (a->r + b->r)) {
-    float angle = atan2(dy, dx);
-    float cosa = cos(angle);
-    float sina = sin(angle);
-
-    ea->addVel({cosa, sina});
-    eb->addVel({-cosa, -sina});
-  }
+  ea->controller->collide(eb);
 };

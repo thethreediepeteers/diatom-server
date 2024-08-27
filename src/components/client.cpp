@@ -66,11 +66,15 @@ void Client::handleMessage(std::string_view message) {
 
   memcpy(&flags, ptr, sizeof(int));
 
-  bool moving = flags & static_cast<int>(Flag::MOVING);
-  bool lmb = flags & static_cast<int>(Flag::LMB);
-  bool rmb = flags & static_cast<int>(Flag::RMB);
+  bool moving = flags & 1;
+  bool lmb = flags & 2;
+  // bool rmb = flags & 4;
 
   movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
+
+  if (lmb) {
+    shoot();
+  }
 
   mouse = XY(mx, my);
   angle = atan2(my, mx);

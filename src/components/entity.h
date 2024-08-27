@@ -1,3 +1,4 @@
+#include "controllers.h"
 #include "mockups.h"
 #include "modules/physics.h"
 #include "modules/util.h"
@@ -8,15 +9,17 @@
 class Entity {
 public:
   static std::map<int, Entity*> instances;
+  static std::vector<int> toDelete;
   static int counter;
 
   Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
-         hshg* grid);
+         hshg* grid, std::string controller = "default", int life = 0);
   virtual ~Entity();
 
   void tick();
   void stayInBounds(int x, int y, int width, int height);
 
+  void shoot();
   void define(std::string what);
 
   std::vector<uint8_t> encode() const;
@@ -27,6 +30,10 @@ public:
 
   void addVel(const XY other) { vel += other; };
 
+  friend struct Controller;
+  friend struct BulletController;
+
+  Controller* controller;
   bool remove;
 
 private:
@@ -40,8 +47,8 @@ protected:
   float size;
   float angle;
   uint8_t shape;
-
+  XY vel;
   util::HexColor color;
 
-  XY vel;
+  int life;
 };

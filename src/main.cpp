@@ -1,6 +1,9 @@
+#include "modules/physics.h"
 #include "modules/server.h"
+#include <chrono>
 #include <csignal>
 #include <iostream>
+#include <vector>
 
 void setupSignals();
 void tick();
@@ -32,6 +35,10 @@ void tick() {
     client.second->tick();
   }
 
+  for (auto& id : Entity::toDelete) {
+    delete Entity::instances[id];
+    Entity::instances.erase(id);
+  }
   for (auto& entity : Entity::instances) {
     entity.second->tick();
   }
