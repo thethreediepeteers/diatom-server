@@ -33,4 +33,7 @@ private:
 
   XY movement;
   XY mouse;
+
+  bool lmb;
+  bool rmb;
 };

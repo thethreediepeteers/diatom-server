@@ -4,7 +4,20 @@
 #include "modules/util.h"
 #include <cstdint>
 #include <map>
+#include <string>
 #include <vector>
+
+struct Gun {
+  float offset, offsetDirection;
+  int life;
+  float reload;
+  float bspeed;
+  std::string bulletType;
+  float angle;
+  float length;
+
+  float tick;
+};
 
 class Entity {
 public:
@@ -40,6 +53,7 @@ private:
   int id;
 
   hshg* grid;
+  std::vector<Gun> guns;
 
 protected:
   int mockupId;

@@ -2,6 +2,7 @@
 #include "components/controllers.h"
 #include <cstring>
 #include <iostream>
+#include <numbers>
 
 // initalize static variables
 std::map<int, Entity*> Entity::instances{};
@@ -30,6 +31,10 @@ Entity::~Entity() {
 
 void Entity::tick() {
   controller->move();
+
+  for (Gun& gun : guns) {
+    ++gun.tick;
+  }
 
   if (life != 0) {
     if (--life == 0) {
@@ -82,11 +87,24 @@ std::vector<uint8_t> Entity::encode() const {
 }
 
 void Entity::shoot() {
-  Entity* entity =
-      new Entity(pos.x, pos.y, angle, 1, color, grid, "bullet", 100);
+  for (Gun& gun : guns) {
+    if (gun.tick >= gun.reload) {
+      float gx = gun.offset * std::cos(gun.offsetDirection + gun.angle + angle);
+      float gy = gun.offset * std::sin(gun.offsetDirection + gun.angle + angle);
+      float gunEndX = gun.length * std::cos(gun.angle + angle);
+      float gunEndY = gun.length * std::sin(gun.angle + angle);
+      float bulletX = pos.x + gx + gunEndX;
+      float bulletY = pos.y + gy + gunEndY;
 
-  entity->vel.x = std::cos(entity->angle) * 5;
-  entity->vel.y = std::sin(entity->angle) * 5;
+      Entity* entity = new Entity(bulletX, bulletY, angle + gun.angle, 1, color,
+                                  grid, "bullet", gun.life);
+
+      entity->vel.x = std::cos(entity->angle) * 5 * gun.bspeed;
+      entity->vel.y = std::sin(entity->angle) * 5 * gun.bspeed;
+
+      gun.tick = 0;
+    }
+  }
 }
 
 void Entity::define(std::string what) {
@@ -94,4 +112,20 @@ void Entity::define(std::string what) {
 
   mockupId = def.id;
   size = def.size;
+
+  for (GunMockup gunm : def.guns) {
+    Gun g;
+    g.angle = gunm.angle * std::numbers::pi / 180;
+
+    g.length = gunm.length;
+    g.offset = gunm.offset;
+    g.offsetDirection = gunm.direction;
+    g.bspeed = gunm.body.bspeed;
+    g.reload = gunm.body.reload;
+    g.bulletType = gunm.body.reload;
+    g.life = gunm.body.life;
+    g.tick = g.reload;
+
+    guns.push_back(g);
+  }
 }

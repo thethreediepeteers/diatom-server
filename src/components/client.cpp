@@ -25,6 +25,10 @@ Client::~Client() {
 void Client::tick() {
   vel += movement;
 
+  if (lmb) {
+    shoot();
+  }
+
   size_t entitySize = sizeof(int) * 2 + sizeof(double) * 2 + sizeof(float) * 2 +
                       4; // 4: shape (1), color (3)
   std::vector<uint8_t> buffer(Entity::instances.size() * entitySize);
@@ -67,14 +71,10 @@ void Client::handleMessage(std::string_view message) {
   memcpy(&flags, ptr, sizeof(int));
 
   bool moving = flags & 1;
-  bool lmb = flags & 2;
-  // bool rmb = flags & 4;
+  lmb = flags & 2;
+  rmb = flags & 4;
 
   movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
-
-  if (lmb) {
-    shoot();
-  }
 
   mouse = XY(mx, my);
   angle = atan2(my, mx);

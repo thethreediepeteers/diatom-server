@@ -6,15 +6,26 @@
 #include <string>
 #include <vector>
 
-struct Gun {
+struct GunBody {
+  float bspeed;
+  float reload;
+  std::string bulletType;
+
+  int life;
+};
+
+struct GunMockup {
   float length;
   float width;
   float xOffset;
   float yOffset;
   float angle;
   float aspect;
+  GunBody body;
 
-  std::vector<uint8_t> encode() const {
+  float offset, direction;
+
+  std::vector<uint8_t> encode() {
     std::vector<uint8_t> buffer(6 * sizeof(float));
     uint8_t* ptr = buffer.data();
 
@@ -23,8 +34,8 @@ struct Gun {
     memcpy(ptr, &width, sizeof(float));
     ptr += sizeof(float);
 
-    float offset = std::sqrt(std::pow(xOffset, 2) + std::pow(yOffset, 2));
-    float direction = std::atan2(xOffset, yOffset);
+    offset = std::sqrt(std::pow(xOffset, 2) + std::pow(yOffset, 2));
+    direction = std::atan2(xOffset, yOffset);
     memcpy(ptr, &offset, sizeof(float));
     ptr += sizeof(float);
     memcpy(ptr, &direction, sizeof(float));
@@ -39,7 +50,7 @@ struct Gun {
   }
 };
 
-struct Turret {
+struct TurretMockup {
   float size;
   float xOffset;
   float yOffset;
@@ -75,8 +86,8 @@ struct Definition {
   int id;
   float size;
   uint8_t shape;
-  std::vector<Gun> guns;
-  std::vector<Turret> turrets;
+  std::vector<GunMockup> guns;
+  std::vector<TurretMockup> turrets;
 
   std::vector<uint8_t> encode() {
     int gunsSize = guns.size() * (6 * sizeof(float));

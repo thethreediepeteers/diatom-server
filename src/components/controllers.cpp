@@ -2,6 +2,7 @@
 #include "entity.h"
 #include "modules/config.h"
 #include <cmath>
+#include <typeinfo>
 
 void Controller::move() {
   base->pos += base->vel;
@@ -10,6 +11,10 @@ void Controller::move() {
   base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
 }
 void Controller::collide(Entity* other) {
+  if (typeid(*other->controller) == typeid(BulletController)) {
+    return;
+  }
+
   float dx = base->pos.x - other->pos.x;
   float dy = base->pos.y - other->pos.y;
   float distance = dx * dx + dy * dy;
