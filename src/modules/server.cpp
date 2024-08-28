@@ -1,4 +1,5 @@
 #include "server.h"
+#include "config.h"
 #include <cstdint>
 #include <cstring>
 #include <filesystem>

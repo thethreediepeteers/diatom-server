@@ -1,9 +1,8 @@
+#include "modules/config.h"
 #include "modules/physics.h"
 #include "modules/server.h"
-#include <chrono>
 #include <csignal>
 #include <iostream>
-#include <vector>
 
 void setupSignals();
 void tick();

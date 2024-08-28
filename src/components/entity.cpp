@@ -1,7 +1,6 @@
 #include "entity.h"
 #include "components/controllers.h"
 #include <cstring>
-#include <iostream>
 #include <numbers>
 
 // initalize static variables

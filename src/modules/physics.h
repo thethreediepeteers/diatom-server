@@ -4,7 +4,6 @@
 #define HSHG_UNIFORM
 
 #include "hshg/hshg.h"
-#include "modules/config.h"
 #include <cstdint>
 #include <vector>
 
