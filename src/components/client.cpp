@@ -1,4 +1,5 @@
 #include "client.h"
+#include "modules/config.h"
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -7,29 +8,32 @@
 std::map<int, Client*> Client::instances{};
 
 Client::Client(WS* socket, int id, std::string color, hshg* grid)
-    : Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT), 0,
-             util::rand<uint8_t>(3, 15), color, grid),
-      socket(socket), disconnected(false), id(id), movement(XY(0, 0)),
-      mouse(XY(0, 0)) {
+    : entity(nullptr), socket(socket), disconnected(false), id(id),
+      entityId(-1), pSpawn(false), color(color), grid(grid), movement(XY(0, 0)),
+      mouse(XY(0, 0)), lmb(false), rmb(false) {
   instances[id] = this;
-  entityId = this->getId();
-  define("aggressor");
 };
 Client::~Client() {
-  Entity::instances.erase(entityId);
+  if (entity) {
+    delete Entity::instances[entityId];
+    Entity::instances.erase(entityId);
+  }
 
   disconnected = true;
   socket->close();
 }
 
 void Client::tick() {
-  vel += movement;
+  if (!entity) {
+    return;
+  }
+  entity->vel += movement;
 
   if (lmb) {
-    shoot();
+    entity->shoot();
   }
 
-  size_t entitySize = sizeof(int) * 2 + sizeof(double) * 2 + sizeof(float) * 2 +
+  size_t entitySize = sizeof(int) * 5 + sizeof(double) * 2 + sizeof(float) * 2 +
                       4; // 4: shape (1), color (3)
   std::vector<uint8_t> buffer(Entity::instances.size() * entitySize);
   uint8_t* ptr = buffer.data();
@@ -49,35 +53,59 @@ void Client::talk(std::string_view message) const {
   socket->send(message, uWS::OpCode::BINARY);
 }
 void Client::handleMessage(std::string_view message) {
-  if (message.size() != 2 * sizeof(short) + sizeof(float) + sizeof(int))
-    return;
+  if (message.size() == sizeof(int)) {
+    // spawn request
 
-  short mx;
-  short my;
-  float m;
-  int flags;
+    if (pSpawn) {
+      kick(); // kick if already spawned
+    }
 
-  auto ptr = message.data();
+    entity = new Entity(util::rand(config::MAP_WIDTH),
+                        util::rand(config::MAP_HEIGHT), 0,
+                        util::rand<uint8_t>(3, 15), color, grid);
+    entityId = entity->getId();
+    entity->spawn("aggressor");
 
-  memcpy(&mx, ptr, sizeof(short));
-  ptr += sizeof(short);
+    std::vector<uint8_t> buffer(sizeof(int));
+    uint8_t* ptr = buffer.data();
+    memcpy(ptr, &entityId, sizeof(int));
+    ptr += sizeof(int);
 
-  memcpy(&my, ptr, sizeof(short));
-  ptr += sizeof(short);
+    std::string_view dataView(reinterpret_cast<char*>(buffer.data()),
+                              buffer.size());
+    talk(dataView);
+  }
 
-  memcpy(&m, ptr, sizeof(float));
-  ptr += sizeof(float);
+  else if (message.size() == 2 * sizeof(short) + sizeof(float) + sizeof(int)) {
+    // tick message
 
-  memcpy(&flags, ptr, sizeof(int));
+    short mx;
+    short my;
+    float m;
+    int flags;
 
-  bool moving = flags & 1;
-  lmb = flags & 2;
-  rmb = flags & 4;
+    auto ptr = message.data();
 
-  movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
+    memcpy(&mx, ptr, sizeof(short));
+    ptr += sizeof(short);
 
-  mouse = XY(mx, my);
-  angle = atan2(my, mx);
+    memcpy(&my, ptr, sizeof(short));
+    ptr += sizeof(short);
+
+    memcpy(&m, ptr, sizeof(float));
+    ptr += sizeof(float);
+
+    memcpy(&flags, ptr, sizeof(int));
+
+    bool moving = flags & 1;
+    lmb = flags & 2;
+    rmb = flags & 4;
+
+    movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
+
+    mouse = XY(mx, my);
+    entity->angle = atan2(my, mx);
+  }
 }
 void Client::kick() const {
   instances.erase(id);

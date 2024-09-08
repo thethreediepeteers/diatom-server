@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-Definition base = {.size = 20, .shape = 0};
+Definition bullet = {.size = 20, .shape = 0, .body = {.health = 10}};
 
 Definition aggressor = {
     .size = 32.5,
@@ -12,10 +12,11 @@ Definition aggressor = {
     .guns = {{.length = 30,
               .width = 20,
               .aspect = 1,
-              .body = {.bspeed = 2.5, .reload = 10, .life = 50}}}};
+              .body = {.bspeed = 2.5, .reload = 10, .life = 50}}},
+    .body = {.health = 50, .speed = 2}};
 
 std::map<std::string, Definition> Definition::definitions = {
-    {"base", base}, {"aggressor", aggressor}};
+    {"bullet", bullet}, {"aggressor", aggressor}};
 
 int Definition::counter = 0;
 

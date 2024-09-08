@@ -79,6 +79,11 @@ struct TurretMockup {
   }
 };
 
+struct Body {
+  int health;
+  int speed;
+};
+
 struct Definition {
   static int counter;
   static std::map<std::string, Definition> definitions;
@@ -88,6 +93,8 @@ struct Definition {
   uint8_t shape;
   std::vector<GunMockup> guns;
   std::vector<TurretMockup> turrets;
+
+  Body body;
 
   std::vector<uint8_t> encode() {
     int gunsSize = guns.size() * (6 * sizeof(float));

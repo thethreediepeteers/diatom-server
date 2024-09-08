@@ -4,6 +4,7 @@
 #include "modules/util.h"
 #include <cstdint>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -12,7 +13,6 @@ struct Gun {
   int life;
   float reload;
   float bspeed;
-  std::string bulletType;
   float angle;
   float length;
 
@@ -25,9 +25,15 @@ public:
   static std::vector<int> toDelete;
   static int counter;
 
+  enum class ControlType { DefaultController, BulletController };
+
   Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
-         hshg* grid, std::string controller = "default", int life = 0);
+         hshg* grid);
   virtual ~Entity();
+
+  void spawn(const std::string& mockup, int t = counter,
+             ControlType control = ControlType::DefaultController, int l = 0);
+  void kill();
 
   void tick();
   void stayInBounds(int x, int y, int width, int height);
@@ -46,8 +52,11 @@ public:
   friend struct Controller;
   friend struct BulletController;
 
-  Controller* controller;
-  bool remove;
+  friend class Client;
+
+  std::unique_ptr<Controller> controller;
+
+  bool death, remove;
 
 private:
   int id;
@@ -55,7 +64,6 @@ private:
   hshg* grid;
   std::vector<Gun> guns;
 
-protected:
   int mockupId;
   XY pos;
   float size;
@@ -65,4 +73,8 @@ protected:
   util::HexColor color;
 
   int life;
+  int speed;
+  int health, maxHealth;
+
+  int team;
 };

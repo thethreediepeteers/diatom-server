@@ -1,6 +1,9 @@
 #include "entity.h"
 #include "components/controllers.h"
+#include "modules/config.h"
+#include <csignal>
 #include <cstring>
+#include <iostream>
 #include <numbers>
 
 // initalize static variables
@@ -9,23 +12,43 @@ std::vector<int> Entity::toDelete{};
 int Entity::counter{};
 
 Entity::Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
-               hshg* grid, std::string control, int life)
-    : remove(false), id(counter++), grid(grid), mockupId(0), pos(XY(x, y)),
-      angle(angle), shape(shape), vel(XY(0, 0)), color(c), life(life) {
+               hshg* grid)
+    : death(true), remove(false), id(counter++), grid(grid), mockupId(-1),
+      pos(XY(x, y)), angle(angle), shape(shape), vel(XY(0, 0)), color(c),
+      health(0), maxHealth(0) {
   instances[id] = this;
+}
+Entity::~Entity() {}
 
-  define("base");
+void Entity::spawn(const std::string& mockup, int t, ControlType control,
+                   int l) {
+  death = false;
+
+  define(mockup);
   hshg_insert(grid, pos.x, pos.y, size, id);
 
-  if (control == "bullet") {
-    controller = new BulletController(this);
-  } else {
-    controller = new Controller(this);
+  team = t;
+  life = l;
+
+  switch (control) {
+  case ControlType::BulletController:
+    controller = std::make_unique<BulletController>(this);
+    break;
+
+  default:
+    controller = std::make_unique<Controller>(this);
+    break;
   }
 }
-Entity::~Entity() {
-  delete controller;
+
+void Entity::kill() {
+  toDelete.push_back(id);
+
   remove = true;
+  if (death) {
+    return;
+  }
+  death = true;
 }
 
 void Entity::tick() {
@@ -35,10 +58,8 @@ void Entity::tick() {
     ++gun.tick;
   }
 
-  if (life != 0) {
-    if (--life == 0) {
-      toDelete.push_back(id);
-    }
+  if ((life > 0 && --life == 0) || health <= 0) {
+    kill();
   }
 }
 
@@ -56,7 +77,7 @@ void Entity::stayInBounds(int x, int y, int width, int height) {
 
 std::vector<uint8_t> Entity::encode() const {
   std::vector<uint8_t> buffer(2 * sizeof(double) + 2 * sizeof(float) +
-                              sizeof(int) * 2 + 4 /*shape (1) + color (3)*/);
+                              sizeof(int) * 5 + 4 /*shape (1) + color (3)*/);
   uint8_t* ptr = buffer.data();
 
   memcpy(ptr, &pos.x, sizeof(double));
@@ -77,6 +98,15 @@ std::vector<uint8_t> Entity::encode() const {
   memcpy(ptr, &mockupId, sizeof(int));
   ptr += sizeof(int);
 
+  memcpy(ptr, &health, sizeof(int));
+  ptr += sizeof(int);
+
+  memcpy(ptr, &maxHealth, sizeof(int));
+  ptr += sizeof(int);
+
+  memcpy(ptr, &team, sizeof(int));
+  ptr += sizeof(int);
+
   memcpy(ptr, &shape, 1);
   ptr += 1;
 
@@ -95,8 +125,10 @@ void Entity::shoot() {
       float bulletX = pos.x + gx + gunEndX;
       float bulletY = pos.y + gy + gunEndY;
 
-      Entity* entity = new Entity(bulletX, bulletY, angle + gun.angle, 1, color,
-                                  grid, "bullet", gun.life);
+      Entity* entity =
+          new Entity(bulletX, bulletY, angle + gun.angle, 1, color, grid);
+
+      entity->spawn("bullet", team, ControlType::BulletController, gun.life);
 
       entity->vel.x = std::cos(entity->angle) * 5 * gun.bspeed;
       entity->vel.y = std::sin(entity->angle) * 5 * gun.bspeed;
@@ -111,6 +143,10 @@ void Entity::define(std::string what) {
 
   mockupId = def.id;
   size = def.size;
+  speed = def.body.speed;
+  health = maxHealth = def.body.health;
+
+  guns.clear();
 
   for (GunMockup gunm : def.guns) {
     Gun g;
@@ -121,10 +157,11 @@ void Entity::define(std::string what) {
     g.offsetDirection = gunm.direction;
     g.bspeed = gunm.body.bspeed;
     g.reload = gunm.body.reload;
-    g.bulletType = gunm.body.reload;
     g.life = gunm.body.life;
     g.tick = g.reload;
 
     guns.push_back(g);
   }
+
+  hshg_insert(grid, pos.x, pos.y, size, id);
 }

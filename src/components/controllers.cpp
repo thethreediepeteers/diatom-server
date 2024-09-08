@@ -2,16 +2,15 @@
 #include "entity.h"
 #include "modules/config.h"
 #include <cmath>
-#include <typeinfo>
 
 void Controller::move() {
-  base->pos += base->vel;
+  base->pos += base->vel * base->speed / 2;
   base->vel *= 0.8;
 
   base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
 }
 void Controller::collide(Entity* other) {
-  if (typeid(*other->controller) == typeid(BulletController)) {
+  if (base->team == other->team) {
     return;
   }
 
@@ -32,6 +31,19 @@ void Controller::collide(Entity* other) {
 void BulletController::move() {
   base->pos += base->vel;
 
-  base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
+  // base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
 }
-void BulletController::collide(Entity* other) {}
+void BulletController::collide(Entity* other) {
+  if (base->team == other->team) {
+    return;
+  }
+
+  float dx = base->pos.x - other->pos.x;
+  float dy = base->pos.y - other->pos.y;
+  float distance = dx * dx + dy * dy;
+
+  if (distance <= (base->size + other->size) * (base->size + other->size)) {
+    --base->health;
+    --other->health;
+  }
+}

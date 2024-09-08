@@ -8,7 +8,7 @@ struct SocketData {
 };
 using WS = uWS::WebSocket<false, true, SocketData>;
 
-class Client : Entity {
+class Client {
 public:
   static std::map<int, Client*> instances;
 
@@ -23,6 +23,9 @@ public:
 
   int getEntityId() const { return entityId; };
   bool isDead() const { return disconnected; };
+  bool playerSpawned() const { return pSpawn; };
+
+  Entity* entity;
 
 private:
   WS* socket;
@@ -30,6 +33,9 @@ private:
 
   int id;
   int entityId;
+  bool pSpawn;
+  std::string color;
+  hshg* grid;
 
   XY movement;
   XY mouse;

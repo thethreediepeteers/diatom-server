@@ -39,6 +39,9 @@ void tick() {
     Entity::instances.erase(id);
   }
   for (auto& entity : Entity::instances) {
+    if (entity.second->death) {
+      continue;
+    }
     entity.second->tick();
   }
 

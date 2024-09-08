@@ -1,5 +1,6 @@
 #include "physics.h"
 #include "components/entity.h"
+#include "config.h"
 #include <cmath>
 #include <cstring>
 
@@ -47,4 +48,5 @@ void collideHSHG(const hshg* hshg, const hshg_entity* a, const hshg_entity* b) {
   Entity* eb = Entity::instances[b->ref];
 
   ea->controller->collide(eb);
+  eb->controller->collide(ea);
 };

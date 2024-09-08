@@ -15,6 +15,8 @@ struct XY {
     x += other.x;
     y += other.y;
   }
+  XY operator*(double n) { return {x * n, y * n}; }
+  XY operator/(double n) { return {x / n, y / n}; }
   void operator*=(double n) {
     x *= n;
     y *= n;

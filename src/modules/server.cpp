@@ -83,16 +83,7 @@ void server::socketOpen(WS* ws) {
 
   Client* client = new Client(ws, id, data->color, grid);
 
-  std::vector<uint8_t> buffer(3 * sizeof(int));
-  uint8_t* ptr = buffer.data();
-
-  int entityId = client->getEntityId();
-  memcpy(ptr, &entityId, sizeof(int));
-  ptr += sizeof(int);
-
-  std::vector<uint8_t> m = map.encode();
-
-  memcpy(ptr, m.data(), m.size());
+  std::vector<uint8_t> buffer = map.encode();
 
   std::string_view dataView(reinterpret_cast<char*>(buffer.data()),
                             buffer.size());
