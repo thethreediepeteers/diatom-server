@@ -15,39 +15,43 @@
  */
 
 #ifndef _hshg_h_
+#define _hshg_h_ 1
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #ifndef HSHG_NDEBUG
+// #ifdef __STDC_VERSION__
 
 #include <assert.h>
 
+// static_assert(__STDC_VERSION__ >= 201112L);
+
+// #endif
 #else
 
 #define assert(...)
 
 #endif
 
+
 #define hshg_attrib_const __attribute__((const))
 #define hshg_attrib_unused __attribute__((unused))
+
 
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-#define restrict
-#endif
 
 #ifndef HSHG_D
 #error You must choose a dimension that you want to use.
 #endif
 
-#define _HSHG_CAT(A, B) A##B
+#define _HSHG_CAT(A, B) A ## B
 #define HSHG_CAT(A, B) _HSHG_CAT(A, B)
 
-#if HSHG_D == 1
+#if   HSHG_D == 1
 
 #define _1D(...) __VA_ARGS__
 #define _2D(...)
@@ -87,6 +91,8 @@ extern "C" {
 #define HSHG_MAIN_NAME() HSHG_CAT(hshg, HSHG_D)
 #endif
 
+
+
 /**
  * A type that will be able to hold the maximum number of entities that the
  * application expects to ever hold at once + 1.
@@ -105,6 +111,8 @@ typedef __hshg_entity_t _hshg_entity_t;
 
 #undef __hshg_entity_t
 
+
+
 /**
  * A type that will be able to hold the maximum number of cells on an edge of
  * a HSHG (the first parameter to hshg_create()).
@@ -122,6 +130,8 @@ typedef hshg_cell_t
 typedef __hshg_cell_t _hshg_cell_t;
 
 #undef __hshg_cell_t
+
+
 
 /**
  * A type that will be able to hold the total number of cells in a HSHG. To get
@@ -163,18 +173,20 @@ typedef __hshg_pos_t _hshg_pos_t;
 
 #undef __hshg_pos_t
 
-#define __hshg_entity_t                                                        \
-  {                                                                            \
-    _hshg_cell_sq_t cell;                                                      \
-    uint8_t grid;                                                              \
-    _hshg_entity_t next;                                                       \
-    _hshg_entity_t prev;                                                       \
-    _hshg_entity_t ref;                                                        \
-    _hshg_pos_t x;                                                             \
-    _2D(_hshg_pos_t y;)                                                        \
-    _3D(_hshg_pos_t z;)                                                        \
-    _hshg_pos_t r;                                                             \
-  }
+
+
+#define __hshg_entity_t     \
+{                           \
+    _hshg_cell_sq_t cell;   \
+    uint8_t grid;           \
+    _hshg_entity_t next;    \
+    _hshg_entity_t prev;    \
+    _hshg_entity_t ref;     \
+    _hshg_pos_t x;          \
+_2D(_hshg_pos_t y;)         \
+_3D(_hshg_pos_t z;)         \
+    _hshg_pos_t r;          \
+}
 
 #define __hshg_entity HSHG_NAME(entity)
 
@@ -182,23 +194,25 @@ typedef struct __hshg_entity __hshg_entity_t _hshg_entity;
 
 #undef __hshg_entity
 
-#define __hshg_grid_t                                                          \
-  {                                                                            \
-    _hshg_entity_t* const cells;                                               \
-                                                                               \
-    const _hshg_cell_t cells_side;                                             \
-    _3D(const _hshg_cell_sq_t cells_sq;)                                       \
-    const _hshg_cell_t cells_mask;                                             \
-                                                                               \
-    _2D(const uint8_t cells2d_log;)                                            \
-    _3D(const uint8_t cells3d_log;)                                            \
-                                                                               \
-    uint8_t shift;                                                             \
-                                                                               \
-    const _hshg_pos_t inverse_cell_size;                                       \
-                                                                               \
-    _hshg_entity_t entities_len;                                               \
-  }
+
+
+#define __hshg_grid_t                       \
+{                                           \
+    _hshg_entity_t* const cells;            \
+                                            \
+    const _hshg_cell_t cells_side;          \
+_3D(const _hshg_cell_sq_t cells_sq;)        \
+    const _hshg_cell_t cells_mask;          \
+                                            \
+_2D(const uint8_t cells2d_log;)             \
+_3D(const uint8_t cells3d_log;)             \
+                                            \
+    uint8_t shift;                          \
+                                            \
+    const _hshg_pos_t inverse_cell_size;    \
+                                            \
+    _hshg_entity_t entities_len;            \
+}
 
 #define __hshg_grid HSHG_NAME(grid)
 
@@ -206,9 +220,13 @@ typedef struct __hshg_grid __hshg_grid_t _hshg_grid;
 
 #undef __hshg_grid
 
+
+
 #define __hshg HSHG_MAIN_NAME()
 
 typedef struct __hshg _hshg;
+
+
 
 #define __hshg_update_t HSHG_NAME(update_t)
 
@@ -218,25 +236,32 @@ typedef __hshg_update_t _hshg_update_t;
 
 #undef __hshg_update_t
 
+
+
 /**
  * Same as hshg_update_t, but suitable for multithreading.
  */
 #define __hshg_const_update_t HSHG_NAME(const_update_t)
 
-typedef void (*__hshg_const_update_t)(const _hshg*, _hshg_entity*);
+typedef void (*__hshg_const_update_t)(
+    const _hshg*, _hshg_entity*);
 
 typedef __hshg_const_update_t _hshg_const_update_t;
 
 #undef __hshg_const_update_t
 
+
+
 #define __hshg_collide_t HSHG_NAME(collide_t)
 
-typedef void (*__hshg_collide_t)(const _hshg*, const _hshg_entity* restrict,
-                                 const _hshg_entity* restrict);
+typedef void (*__hshg_collide_t)(
+    const _hshg*, const _hshg_entity* restrict, const _hshg_entity* restrict);
 
 typedef __hshg_collide_t _hshg_collide_t;
 
 #undef __hshg_collide_t
+
+
 
 #define __hshg_query_t HSHG_NAME(query_t)
 
@@ -246,48 +271,54 @@ typedef __hshg_query_t _hshg_query_t;
 
 #undef __hshg_query_t
 
-#define __hshg_t                                                               \
-  {                                                                            \
-    _hshg_entity* entities;                                                    \
-    _hshg_entity_t* const cells;                                               \
-                                                                               \
-    _hshg_update_t update;                                                     \
-    _hshg_const_update_t const_update;                                         \
-    _hshg_collide_t collide;                                                   \
-    _hshg_query_t query;                                                       \
-                                                                               \
-    const uint8_t cell_log;                                                    \
-    const uint8_t grids_len;                                                   \
-                                                                               \
-    union {                                                                    \
-      struct {                                                                 \
-        uint8_t updating : 1;                                                  \
-        uint8_t colliding : 1;                                                 \
-        uint8_t querying : 1;                                                  \
-      };                                                                       \
-      uint8_t calling;                                                         \
-    };                                                                         \
-    uint8_t removed : 1;                                                       \
-                                                                               \
-    uint32_t old_cache;                                                        \
-    uint32_t new_cache;                                                        \
-                                                                               \
-    const _hshg_cell_sq_t grid_size;                                           \
-    const _hshg_pos_t inverse_grid_size;                                       \
-    const _hshg_cell_sq_t cells_len;                                           \
-    const uint32_t cell_size;                                                  \
-                                                                               \
-    _hshg_entity_t free_entity;                                                \
-    _hshg_entity_t entities_used;                                              \
-    _hshg_entity_t entities_size;                                              \
-    _hshg_entity_t entity_id;                                                  \
-                                                                               \
-    _hshg_grid grids[];                                                        \
-  }
+
+
+#define __hshg_t                            \
+{                                           \
+    _hshg_entity* entities;                 \
+    _hshg_entity_t* const cells;            \
+                                            \
+    _hshg_update_t update;                  \
+    _hshg_const_update_t const_update;      \
+    _hshg_collide_t collide;                \
+    _hshg_query_t query;                    \
+                                            \
+    const uint8_t cell_log;                 \
+    const uint8_t grids_len;                \
+                                            \
+    union                                   \
+    {                                       \
+        struct                              \
+        {                                   \
+            uint8_t updating:1;             \
+            uint8_t colliding:1;            \
+            uint8_t querying:1;             \
+        };                                  \
+        uint8_t calling;                    \
+    };                                      \
+    uint8_t removed:1;                      \
+                                            \
+    uint32_t old_cache;                     \
+    uint32_t new_cache;                     \
+                                            \
+    const _hshg_cell_sq_t grid_size;        \
+    const _hshg_pos_t inverse_grid_size;    \
+    const _hshg_cell_sq_t cells_len;        \
+    const uint32_t cell_size;               \
+                                            \
+    _hshg_entity_t free_entity;             \
+    _hshg_entity_t entities_used;           \
+    _hshg_entity_t entities_size;           \
+    _hshg_entity_t entity_id;               \
+                                            \
+    _hshg_grid grids[];                     \
+}
 
 struct __hshg __hshg_t;
 
 #undef __hshg
+
+
 
 /**
  * Creates a new HSHG.
@@ -297,11 +328,17 @@ struct __hshg __hshg_t;
  */
 #define _hshg_create HSHG_NAME(create)
 
-extern _hshg* _hshg_create(const _hshg_cell_t side, const uint32_t size);
+extern _hshg*
+_hshg_create(const _hshg_cell_t side, const uint32_t size);
+
+
 
 #define _hshg_free HSHG_NAME(free)
 
-extern void _hshg_free(_hshg* const);
+extern void
+_hshg_free(_hshg* const);
+
+
 
 /**
  * Returns the maximum amount of memory a HSHG with given parameters will use,
@@ -320,35 +357,53 @@ extern void _hshg_free(_hshg* const);
  */
 #define _hshg_memory_usage HSHG_NAME(memory_usage)
 
-extern size_t _hshg_memory_usage(const _hshg_cell_t side,
-                                 const _hshg_entity_t entities_max);
+extern size_t
+_hshg_memory_usage(const _hshg_cell_t side, const _hshg_entity_t entities_max);
+
+
 
 #define _hshg_set_size HSHG_NAME(set_size)
 
-extern int _hshg_set_size(_hshg* const, const _hshg_entity_t size);
+extern int
+_hshg_set_size(_hshg* const, const _hshg_entity_t size);
+
+
 
 #define _hshg_insert HSHG_NAME(insert)
 
-extern int _hshg_insert(_hshg* const,
-                        const _hshg_pos_t x _2D(, const _hshg_pos_t y)
-                            _3D(, const _hshg_pos_t z),
-                        const _hshg_pos_t r, const _hshg_entity_t ref);
+extern int
+_hshg_insert(_hshg* const, const _hshg_pos_t x _2D(, const _hshg_pos_t y)
+    _3D(, const _hshg_pos_t z), const _hshg_pos_t r, const _hshg_entity_t ref);
+
+
 
 #define _hshg_remove HSHG_NAME(remove)
 
-extern void _hshg_remove(_hshg* const);
+extern void
+_hshg_remove(_hshg* const);
+
+
 
 #define _hshg_move HSHG_NAME(move)
 
-extern void _hshg_move(_hshg* const);
+extern void
+_hshg_move(_hshg* const);
+
+
 
 #define _hshg_resize HSHG_NAME(resize)
 
-extern void _hshg_resize(_hshg* const);
+extern void
+_hshg_resize(_hshg* const);
+
+
 
 #define _hshg_update HSHG_NAME(update)
 
-extern void _hshg_update(_hshg* const);
+extern void
+_hshg_update(_hshg* const);
+
+
 
 /**
  * Multithreaded update.
@@ -359,40 +414,64 @@ extern void _hshg_update(_hshg* const);
  */
 #define _hshg_update_multithread HSHG_NAME(update_multithread)
 
-extern void _hshg_update_multithread(const _hshg* const, const uint8_t threads,
-                                     const uint8_t idx);
+extern void
+_hshg_update_multithread(const _hshg* const,
+    const uint8_t threads, const uint8_t idx);
+
+
 
 #define _hshg_update_cache HSHG_NAME(update_cache)
 
-extern void _hshg_update_cache(_hshg* const);
+extern void
+_hshg_update_cache(_hshg* const);
+
+
 
 #define _hshg_collide HSHG_NAME(collide)
 
-extern void _hshg_collide(_hshg* const);
+extern void
+_hshg_collide(_hshg* const);
+
+
 
 #define _hshg_optimize HSHG_NAME(optimize)
 
-extern int _hshg_optimize(_hshg* const);
+extern int
+_hshg_optimize(_hshg* const);
+
+
 
 #define _hshg_query HSHG_NAME(query)
 
-extern void _hshg_query(_hshg* const,
-                        const _hshg_pos_t min_x _2D(, const _hshg_pos_t min_y)
-                            _3D(, const _hshg_pos_t min_z),
-                        const _hshg_pos_t max_x _2D(, const _hshg_pos_t max_y)
-                            _3D(, const _hshg_pos_t max_z));
+extern void
+_hshg_query(_hshg* const
+    , const _hshg_pos_t min_x
+_2D(, const _hshg_pos_t min_y)
+_3D(, const _hshg_pos_t min_z)
+    , const _hshg_pos_t max_x
+_2D(, const _hshg_pos_t max_y)
+_3D(, const _hshg_pos_t max_z)
+);
+
+
 
 #define _hshg_query_multithread HSHG_NAME(query_multithread)
 
 extern void
-_hshg_query_multithread(const _hshg* const,
-                        const _hshg_pos_t min_x _2D(, const _hshg_pos_t min_y)
-                            _3D(, const _hshg_pos_t min_z),
-                        const _hshg_pos_t max_x _2D(, const _hshg_pos_t max_y)
-                            _3D(, const _hshg_pos_t max_z));
+_hshg_query_multithread(const _hshg* const
+    , const _hshg_pos_t min_x
+_2D(, const _hshg_pos_t min_y)
+_3D(, const _hshg_pos_t min_z)
+    , const _hshg_pos_t max_x
+_2D(, const _hshg_pos_t max_y)
+_3D(, const _hshg_pos_t max_z)
+);
+
+
 
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif /* _hshg_h_ */

@@ -3,8 +3,7 @@
 class Entity;
 
 struct Controller {
-  Controller(Entity* base) : base(base) {}
-  virtual ~Controller() = default;
+  Controller(Entity* base);
 
   virtual void move();
   virtual void collide(Entity* other);
@@ -13,7 +12,7 @@ struct Controller {
 };
 
 struct BulletController : Controller {
-  BulletController(Entity* base) : Controller(base) {}
+  BulletController(Entity* base);
 
   void move() override;
   void collide(Entity* other) override;

@@ -4,13 +4,33 @@
 #include <cmath>
 #include <cstring>
 
+XY::XY(double x, double y) : x(x), y(y) {}
+
+XY XY::operator*(double n) {
+  return {x * n, y * n};
+}
+XY XY::operator/(double n) {
+  return {x / n, y / n};
+}
+
+void XY::operator+=(const XY other) {
+  x += other.x;
+  y += other.y;
+}
+void XY::operator*=(double n) {
+  x *= n;
+  y *= n;
+}
+
+Map::Map(int width, int height) : width(width), height(height) {}
+
 std::vector<uint8_t> Map::encode() const {
   std::vector<uint8_t> buffer(sizeof(int) * 2);
+
   uint8_t* ptr = buffer.data();
 
   memcpy(ptr, &width, sizeof(width));
   ptr += sizeof(int);
-
   memcpy(ptr, &height, sizeof(height));
 
   return buffer;
@@ -23,8 +43,10 @@ hshg* initHSHG() {
 
   return grid;
 }
+
 void updateHSHG(hshg* h, hshg_entity* entity) {
-  auto it = Entity::instances.find(entity->ref);
+  std::map<int, Entity *>::iterator it = Entity::instances.find(entity->ref);
+
   if (it == Entity::instances.end()) {
     hshg_remove(h);
     return;
@@ -35,6 +57,7 @@ void updateHSHG(hshg* h, hshg_entity* entity) {
   if (e->remove) {
     hshg_remove(h);
     e->remove = false;
+
     return;
   }
 
@@ -43,6 +66,7 @@ void updateHSHG(hshg* h, hshg_entity* entity) {
 
   hshg_move(h);
 }
+
 void collideHSHG(const hshg* hshg, const hshg_entity* a, const hshg_entity* b) {
   Entity* ea = Entity::instances[a->ref];
   Entity* eb = Entity::instances[b->ref];

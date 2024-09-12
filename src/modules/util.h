@@ -38,18 +38,16 @@ namespace util {
     return rand<T>(0, max);
   }
 
-  HexColor randcolor();
-
   template <class T>
   class FreeList {
   public:
     FreeList();
 
     int insert(const T& element);
+    int range() const;
+
     void erase(int n);
     void clear();
-
-    int range() const;
 
     T& operator[](int n);
     const T& operator[](int n) const;
@@ -59,7 +57,9 @@ namespace util {
       T element;
       int next;
     };
+
     std::vector<FreeElement> data;
+
     int first_free;
   };
 
@@ -82,6 +82,11 @@ namespace util {
   }
 
   template <class T>
+  int FreeList<T>::range() const {
+    return data.size();
+  }
+
+  template <class T>
   void FreeList<T>::erase(int n) {
     data[n].next = first_free;
     first_free = n;
@@ -91,11 +96,6 @@ namespace util {
   void FreeList<T>::clear() {
     data.clear();
     first_free = -1;
-  }
-
-  template <class T>
-  int FreeList<T>::range() const {
-    return data.size();
   }
 
   template <class T>

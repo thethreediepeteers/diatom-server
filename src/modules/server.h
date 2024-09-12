@@ -1,3 +1,5 @@
+#pragma once
+
 #include "components/client.h"
 #include <uWebSockets/App.h>
 

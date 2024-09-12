@@ -3,12 +3,15 @@
 #include "modules/config.h"
 #include <cmath>
 
+Controller::Controller(Entity* base) : base(base) {}
+
 void Controller::move() {
   base->pos += base->vel * base->speed / 2;
   base->vel *= 0.8;
 
   base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
 }
+
 void Controller::collide(Entity* other) {
   if (base->team == other->team) {
     return;
@@ -28,11 +31,14 @@ void Controller::collide(Entity* other) {
   }
 }
 
+BulletController::BulletController(Entity* base) : Controller(base) {}
+
 void BulletController::move() {
   base->pos += base->vel;
 
   // base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
 }
+
 void BulletController::collide(Entity* other) {
   if (base->team == other->team) {
     return;

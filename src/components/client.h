@@ -1,3 +1,5 @@
+#pragma once
+
 #include "entity.h"
 #include <string_view>
 #include <uWebSockets/App.h>
@@ -6,6 +8,7 @@ struct SocketData {
   std::string color;
   int id;
 };
+
 using WS = uWS::WebSocket<false, true, SocketData>;
 
 class Client {
@@ -16,30 +19,30 @@ public:
   ~Client();
 
   void tick();
-
   void talk(std::string_view message) const;
   void handleMessage(std::string_view message);
   void kick() const;
 
-  int getEntityId() const { return entityId; };
-  bool isDead() const { return disconnected; };
-  bool playerSpawned() const { return pSpawn; };
+  int getEntityId() const;
+
+  bool isDead() const;
+  bool playerSpawned() const;
 
   Entity* entity;
 
 private:
-  WS* socket;
-  bool disconnected;
-
   int id;
   int entityId;
+
+  bool disconnected;
   bool pSpawn;
+  bool lmb;
+  bool rmb;
+  
   std::string color;
   hshg* grid;
+  WS* socket;
 
   XY movement;
   XY mouse;
-
-  bool lmb;
-  bool rmb;
 };

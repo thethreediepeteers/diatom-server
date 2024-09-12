@@ -63,7 +63,7 @@ namespace uWS {
 }
 
 #if !defined(UWS_NO_ZLIB) && !defined(UWS_MOCK_ZLIB)
-#include <zlib.h>
+#include "zlib.h"
 #endif
 
 #include <string>

@@ -8,18 +8,18 @@ void setupSignals();
 void tick();
 us_timer_t* setupLoop();
 
-hshg* hshg;
+hshg* HSHG;
 
 int main() {
   generateMockups();
   setupSignals();
 
-  hshg = initHSHG();
+  HSHG = initHSHG();
 
   us_timer_t* loop = setupLoop();
-  server::run(config::SERVER_PORT, loop, hshg);
+  server::run(config::SERVER_PORT, loop, HSHG);
 
-  std::cout << "Server successfully shut down" << '\n';
+  std::cout << "Server successfully shut down" << std::endl;
 
   return 0;
 }
@@ -30,31 +30,39 @@ void setupSignals() {
 }
 
 void tick() {
-  for (auto& client : Client::instances) {
+  for (const auto& client : Client::instances) {
     client.second->tick();
   }
 
-  for (auto& id : Entity::toDelete) {
+  for (const auto& id : Entity::toDelete) {
     delete Entity::instances[id];
     Entity::instances.erase(id);
   }
-  for (auto& entity : Entity::instances) {
+
+  for (const auto& entity : Entity::instances) {
     if (entity.second->death) {
       continue;
     }
+
     entity.second->tick();
   }
 
-  hshg_update(hshg);
-  hshg_collide(hshg);
+  hshg_update(HSHG);
+  hshg_collide(HSHG);
 }
 
 us_timer_t* setupLoop() {
-  auto loop = uWS::Loop::get();
+  uWS::Loop* loop = uWS::Loop::get();
   us_timer_t* delayTimer = us_create_timer((us_loop_t*)loop, 0, 0);
+
   us_timer_set(
-      delayTimer, [](us_timer_t*) { tick(); }, 1000 / config::SERVER_FPS,
-      1000 / config::SERVER_FPS);
+    delayTimer,
+    [](us_timer_t*) {
+      tick();
+    },
+    1000 / config::SERVER_FPS,
+    1000 / config::SERVER_FPS
+  );
 
   return delayTimer;
 }
