@@ -11,4 +11,6 @@ vgcore.*
 *.exe
 *.o
 server
-dserver
+debug_server
+lib/
+include/uWebSockets/

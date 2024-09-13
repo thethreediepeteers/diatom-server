@@ -1,3 +1,10 @@
-How to install the server
+# Server setup
+Run `install.sh` with arguments `all`, `zlib`, or `sockets` to install dependencies.
+```bash
+./install.sh all
+```
 
-Run install.sh file, make sure to run it with administrative permissions
+Run `make` to compile
+```bash
+make
+```
