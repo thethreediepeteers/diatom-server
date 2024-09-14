@@ -2,6 +2,7 @@
 #include "modules/config.h"
 #include "modules/physics.h"
 #include "modules/server.h"
+#include "modules/util.h"
 #include <chrono>
 #include <csignal>
 #include <iostream>
@@ -19,6 +20,13 @@ int main() {
   HSHG = initHSHG();
 
   us_timer_t* loop = setupLoop();
+
+  for (int i = 0; i < 1000; ++i) {
+    (new Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT),
+                util::rand(360), util::rand(3, 15), util::HexColor("#ff0000"),
+                HSHG))
+        ->spawn("bullet", 1001);
+  }
   server::run(config::SERVER_PORT, loop, HSHG);
 
   std::cout << "Server successfully shut down" << std::endl;
@@ -55,7 +63,7 @@ void tick() {
 
   auto start4 = std::chrono::steady_clock::now();
   hshg_update(HSHG);
-  // hshg_collide(HSHG);
+  hshg_collide(HSHG); // this thing use up ms
   auto end4 = std::chrono::steady_clock::now() - start4;
 
   auto endt = std::chrono::steady_clock::now() - startt;

@@ -12,7 +12,7 @@ Definition aggressor = {
     .guns = {{.length = 30,
               .width = 17.5,
               .aspect = 1,
-              .body = {.bspeed = 2.5, .reload = 1, .life = 0}}},
+              .body = {.bspeed = 2.5, .reload = 0, .life = 0}}},
     .body = {.health = 50, .speed = 2}};
 
 std::map<std::string, Definition> Definition::definitions = {
