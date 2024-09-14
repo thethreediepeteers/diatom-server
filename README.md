@@ -1,7 +1,7 @@
 # Server setup
-Run `install.sh` with arguments `all`, `zlib`, or `sockets` to install dependencies.
+Run `install.sh` with root perms:
 ```bash
-./install.sh all
+sudo ./install.sh 
 ```
 
 Run `make` to compile

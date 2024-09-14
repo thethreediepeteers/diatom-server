@@ -13,17 +13,17 @@ std::vector<uint8_t> GunMockup::encode() {
   float a = angle * std::numbers::pi / 180;
   uint8_t* ptr = buffer.data();
 
-  memcpy(ptr, &length, sizeof(float));
+  std::memcpy(ptr, &length, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &width, sizeof(float));
+  std::memcpy(ptr, &width, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &offset, sizeof(float));
+  std::memcpy(ptr, &offset, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &direction, sizeof(float));
+  std::memcpy(ptr, &direction, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &a, sizeof(float));
+  std::memcpy(ptr, &a, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &aspect, sizeof(float));
+  std::memcpy(ptr, &aspect, sizeof(float));
 
   return buffer;
 }
@@ -34,58 +34,34 @@ std::vector<uint8_t> TurretMockup::encode() const {
   float a = angle * std::numbers::pi / 180;
   uint8_t* ptr = buffer.data();
 
-  memcpy(ptr, &xOffset, sizeof(float));
+  std::memcpy(ptr, &xOffset, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &yOffset, sizeof(float));
+  std::memcpy(ptr, &yOffset, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &size, sizeof(float));
+  std::memcpy(ptr, &size, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &a, sizeof(float));
+  std::memcpy(ptr, &a, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &shape, 1);
+  std::memcpy(ptr, &shape, 1);
 
   return buffer;
 }
 
-Definition bullet = {
-  .size = 20,
-  .shape = 0,
-  .body = {
-    .health = 10
-  }
-};
+Definition bullet = {.size = 20, .shape = 0, .body = {.health = 10}};
 
 Definition aggressor = {
-  .size = 32.5,
-  .shape = 0,
-  .guns = {
-    {
-      .length = 30,
-      .width = 17.5,
-      .aspect = 1.35,
-      .body = {
-        .bspeed = 2.5,
-        .reload = 10,
-        .life = 50
-      }
-    }
-  },
-  .body = {
-    .health = 50,
-    .speed = 2
-  }
-};
+    .size = 32.5,
+    .shape = 0,
+    .guns = {{.length = 30,
+              .width = 17.5,
+              .aspect = 1.35,
+              .body = {.bspeed = 2.5, .reload = 10, .life = 50}}},
+    .body = {.health = 50, .speed = 2}};
 
 int Definition::counter = 0;
 
 std::map<std::string, Definition> Definition::definitions = {
-  {
-    "bullet", bullet
-  },
-  {
-    "aggressor", aggressor
-  }
-};
+    {"bullet", bullet}, {"aggressor", aggressor}};
 
 std::vector<uint8_t> Definition::encode() {
   int gunsSize = guns.size() * (6 * sizeof(float));
@@ -93,33 +69,34 @@ std::vector<uint8_t> Definition::encode() {
   int gs = guns.size();
   int ts = turrets.size();
 
-  std::vector<uint8_t> buffer(sizeof(int) + sizeof(float) + 1 + sizeof(int) + gunsSize + sizeof(int) + turretsSize);
+  std::vector<uint8_t> buffer(sizeof(int) + sizeof(float) + 1 + sizeof(int) +
+                              gunsSize + sizeof(int) + turretsSize);
 
   uint8_t* ptr = buffer.data();
 
-  memcpy(ptr, &id, sizeof(int));
+  std::memcpy(ptr, &id, sizeof(int));
   ptr += sizeof(int);
-  memcpy(ptr, &size, sizeof(float));
+  std::memcpy(ptr, &size, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &shape, 1);
+  std::memcpy(ptr, &shape, 1);
   ptr += 1;
-  memcpy(ptr, &gs, sizeof(int));
+  std::memcpy(ptr, &gs, sizeof(int));
   ptr += sizeof(int);
 
   for (auto& gun : guns) {
     std::vector<uint8_t> gunData = gun.encode();
-  
-    memcpy(ptr, gunData.data(), gunData.size());
+
+    std::memcpy(ptr, gunData.data(), gunData.size());
     ptr += gunData.size();
   }
 
-  memcpy(ptr, &ts, sizeof(int));
+  std::memcpy(ptr, &ts, sizeof(int));
   ptr += sizeof(int);
 
   for (auto& turret : turrets) {
     std::vector<uint8_t> turretData = turret.encode();
 
-    memcpy(ptr, turretData.data(), turretData.size());
+    std::memcpy(ptr, turretData.data(), turretData.size());
     ptr += turretData.size();
   }
 
@@ -145,13 +122,11 @@ void generateMockups() {
   uint8_t* ptr = mockups.data();
 
   for (auto& d : encodedData) {
-    memcpy(ptr, d.data(), d.size());
+    std::memcpy(ptr, d.data(), d.size());
     ptr += d.size();
   }
 
-  std::ofstream ofs{
-    "mockups.hex"
-  };
+  std::ofstream ofs{"mockups.hex"};
 
   ofs << std::hex << std::setfill('0');
   for (uint8_t u : mockups) {
@@ -160,11 +135,12 @@ void generateMockups() {
 
   ofs.close();
 
-  std::chrono::_V2::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+  std::chrono::_V2::steady_clock::time_point endTime =
+      std::chrono::steady_clock::now();
 
-  std::cout << size
-            << " bytes of mockups generated in "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()
-            << "ms"
-            << std::endl;
+  std::cout << size << " bytes of mockups generated in "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(endTime -
+                                                                     startTime)
+                   .count()
+            << "ms" << std::endl;
 }

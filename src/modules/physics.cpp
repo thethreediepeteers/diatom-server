@@ -6,12 +6,8 @@
 
 XY::XY(double x, double y) : x(x), y(y) {}
 
-XY XY::operator*(double n) {
-  return {x * n, y * n};
-}
-XY XY::operator/(double n) {
-  return {x / n, y / n};
-}
+XY XY::operator*(double n) { return {x * n, y * n}; }
+XY XY::operator/(double n) { return {x / n, y / n}; }
 
 void XY::operator+=(const XY other) {
   x += other.x;
@@ -29,9 +25,9 @@ std::vector<uint8_t> Map::encode() const {
 
   uint8_t* ptr = buffer.data();
 
-  memcpy(ptr, &width, sizeof(width));
+  std::memcpy(ptr, &width, sizeof(width));
   ptr += sizeof(int);
-  memcpy(ptr, &height, sizeof(height));
+  std::memcpy(ptr, &height, sizeof(height));
 
   return buffer;
 }
@@ -45,7 +41,7 @@ hshg* initHSHG() {
 }
 
 void updateHSHG(hshg* h, hshg_entity* entity) {
-  std::map<int, Entity *>::iterator it = Entity::instances.find(entity->ref);
+  std::map<int, Entity*>::iterator it = Entity::instances.find(entity->ref);
 
   if (it == Entity::instances.end()) {
     hshg_remove(h);

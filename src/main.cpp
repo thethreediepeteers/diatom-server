@@ -40,10 +40,6 @@ void tick() {
   }
 
   for (const auto& entity : Entity::instances) {
-    if (entity.second->death) {
-      continue;
-    }
-
     entity.second->tick();
   }
 
@@ -56,13 +52,8 @@ us_timer_t* setupLoop() {
   us_timer_t* delayTimer = us_create_timer((us_loop_t*)loop, 0, 0);
 
   us_timer_set(
-    delayTimer,
-    [](us_timer_t*) {
-      tick();
-    },
-    1000 / config::SERVER_FPS,
-    1000 / config::SERVER_FPS
-  );
+      delayTimer, [](us_timer_t*) { tick(); }, 1000 / config::SERVER_FPS,
+      1000 / config::SERVER_FPS);
 
   return delayTimer;
 }

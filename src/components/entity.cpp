@@ -3,7 +3,6 @@
 #include "modules/config.h"
 #include <csignal>
 #include <cstring>
-#include <iostream>
 #include <numbers>
 
 // initalize static variables
@@ -12,15 +11,16 @@ std::vector<int> Entity::toDelete{};
 
 int Entity::counter{};
 
-Entity::Entity(double x, double y, float angle, uint8_t shape, util::HexColor c, hshg* grid) :
-  death(true), remove(false), id(counter++), health(0), maxHealth(0),
-  mockupId(-1), angle(angle), grid(grid), shape(shape), color(c),
-  pos(XY(x, y)), vel(XY(0, 0))
-{
+Entity::Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
+               hshg* grid)
+    : death(true), remove(false), id(counter++), health(0), maxHealth(0),
+      mockupId(-1), angle(angle), grid(grid), shape(shape), color(c),
+      pos(XY(x, y)), vel(XY(0, 0)) {
   instances[id] = this;
 }
 
-void Entity::spawn(const std::string& mockup, int t, ControlType control, int l) {
+void Entity::spawn(const std::string& mockup, int t, ControlType control,
+                   int l) {
   death = false;
 
   define(mockup);
@@ -65,15 +65,13 @@ void Entity::tick() {
 void Entity::stayInBounds(int x, int y, int width, int height) {
   if (pos.x < 0) {
     vel.x -= (pos.x) / config::ROOM_BOUNCE;
-  }
-  else if (pos.x > width) {
+  } else if (pos.x > width) {
     vel.x -= (pos.x - width) / config::ROOM_BOUNCE;
   }
 
   if (pos.y < 0) {
     vel.y -= (pos.y) / config::ROOM_BOUNCE;
-  }
-  else if (pos.y > height) {
+  } else if (pos.y > height) {
     vel.y -= (pos.y - height) / config::ROOM_BOUNCE;
   }
 }
@@ -88,7 +86,8 @@ void Entity::shoot() {
       float bulletX = pos.x + gx + gunEndX;
       float bulletY = pos.y + gy + gunEndY;
 
-      Entity* entity = new Entity(bulletX, bulletY, angle + gun.angle, 1, color, grid);
+      Entity* entity =
+          new Entity(bulletX, bulletY, angle + gun.angle, 1, color, grid);
 
       entity->spawn("bullet", team, ControlType::BulletController, gun.life);
 
@@ -127,48 +126,35 @@ void Entity::define(std::string what) {
   hshg_insert(grid, pos.x, pos.y, size, id);
 }
 
-void Entity::addVel(const XY other) {
-  vel += other;
-};
+void Entity::addVel(const XY other) { vel += other; };
 
 std::vector<uint8_t> Entity::encode() const {
-  std::vector<uint8_t> buffer(2 * sizeof(double) + 2 * sizeof(float) + sizeof(int) * 5 + 4 /*shape (1) + color (3)*/);
+  std::vector<uint8_t> buffer(2 * sizeof(double) + 2 * sizeof(float) +
+                              sizeof(int) * 5 + 4 /*shape (1) + color (3)*/);
 
   uint8_t* ptr = buffer.data();
 
-  memcpy(ptr, &pos.x, sizeof(double));
+  std::memcpy(ptr, &pos.x, sizeof(double));
   ptr += sizeof(double);
-  memcpy(ptr, &pos.y, sizeof(double));
+  std::memcpy(ptr, &pos.y, sizeof(double));
   ptr += sizeof(double);
-  memcpy(ptr, &size, sizeof(float));
+  std::memcpy(ptr, &size, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &angle, sizeof(float));
+  std::memcpy(ptr, &angle, sizeof(float));
   ptr += sizeof(float);
-  memcpy(ptr, &id, sizeof(int));
+  std::memcpy(ptr, &id, sizeof(int));
   ptr += sizeof(int);
-  memcpy(ptr, &mockupId, sizeof(int));
+  std::memcpy(ptr, &mockupId, sizeof(int));
   ptr += sizeof(int);
-  memcpy(ptr, &health, sizeof(int));
+  std::memcpy(ptr, &health, sizeof(int));
   ptr += sizeof(int);
-  memcpy(ptr, &maxHealth, sizeof(int));
+  std::memcpy(ptr, &maxHealth, sizeof(int));
   ptr += sizeof(int);
-  memcpy(ptr, &team, sizeof(int));
+  std::memcpy(ptr, &team, sizeof(int));
   ptr += sizeof(int);
-  memcpy(ptr, &shape, 1);
+  std::memcpy(ptr, &shape, 1);
   ptr += 1;
-  memcpy(ptr, color.encode().data(), 3);
+  std::memcpy(ptr, color.encode().data(), 3);
 
   return buffer;
 }
-
-int Entity::getId() const {
-  return id;
-};
-
-XY Entity::getPos() const {
-  return pos;
-};
-
-float Entity::getSize() const {
-  return size;
-};

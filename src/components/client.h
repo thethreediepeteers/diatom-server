@@ -23,12 +23,11 @@ public:
   void handleMessage(std::string_view message);
   void kick() const;
 
-  int getEntityId() const;
-
-  bool isDead() const;
-  bool playerSpawned() const;
-
   Entity* entity;
+
+  int getEntityId() const { return entityId; };
+  bool isDead() const { return disconnected; };
+  bool playerSpawned() const { return pSpawn; };
 
 private:
   int id;
@@ -38,7 +37,7 @@ private:
   bool pSpawn;
   bool lmb;
   bool rmb;
-  
+
   std::string color;
   hshg* grid;
   WS* socket;

@@ -13,4 +13,3 @@ vgcore.*
 server
 debug_server
 lib/
-include/uWebSockets/

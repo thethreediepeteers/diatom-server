@@ -7,11 +7,10 @@
 
 std::map<int, Client*> Client::instances{};
 
-Client::Client(WS* socket, int id, std::string color, hshg* grid) :
-  entity(nullptr), id(id), entityId(-1), disconnected(false), pSpawn(false),
-  lmb(false), rmb(false), color(color), grid(grid), socket(socket),
-  movement(XY(0, 0)), mouse(XY(0, 0))
-{
+Client::Client(WS* socket, int id, std::string color, hshg* grid)
+    : entity(nullptr), id(id), entityId(-1), disconnected(false), pSpawn(false),
+      lmb(false), rmb(false), color(color), grid(grid), socket(socket),
+      movement(XY(0, 0)), mouse(XY(0, 0)) {
   instances[id] = this;
 };
 
@@ -36,18 +35,22 @@ void Client::tick() {
     entity->shoot();
   }
 
-  size_t entitySize = sizeof(int) * 5 + sizeof(double) * 2 + sizeof(float) * 2 + 4; // 4: shape (1), color (3)
-  std::vector<uint8_t> buffer(Entity::instances.size() * entitySize);
-  uint8_t* ptr = buffer.data();
+  size_t entitySize = sizeof(int) * 5 + sizeof(double) * 2 + sizeof(float) * 2 +
+                      4; // 4: shape (1), color (3)
+  std::vector<uint8_t> buffer(1 + Entity::instances.size() * entitySize);
+  uint8_t* ptr = buffer.data() + 1;
+
+  buffer[0] = 'u'; // header
 
   for (auto& e : Entity::instances) {
     std::vector<uint8_t> state = e.second->encode();
 
-    memcpy(ptr, state.data(), state.size());
+    std::memcpy(ptr, state.data(), state.size());
     ptr += entitySize;
   }
 
-  std::string_view dataView(reinterpret_cast<char*>(buffer.data()), buffer.size());
+  std::string_view dataView(reinterpret_cast<char*>(buffer.data()),
+                            buffer.size());
   talk(dataView);
 }
 
@@ -61,22 +64,23 @@ void Client::handleMessage(std::string_view message) {
       kick(); // kick if already spawned
     }
 
-    entity = new Entity(
-      util::rand(config::MAP_WIDTH),
-      util::rand(config::MAP_HEIGHT), 0,
-      util::rand<uint8_t>(3, 15), color, grid
-    );
+    entity = new Entity(util::rand(config::MAP_WIDTH),
+                        util::rand(config::MAP_HEIGHT), 0,
+                        util::rand<uint8_t>(3, 15), color, grid);
     entityId = entity->getId();
 
     entity->spawn("aggressor");
 
-    std::vector<uint8_t> buffer(sizeof(int));
-    uint8_t* ptr = buffer.data();
+    std::vector<uint8_t> buffer(1 + sizeof(int));
+    uint8_t* ptr = buffer.data() + 1;
 
-    memcpy(ptr, &entityId, sizeof(int));
+    buffer[0] = 's'; // header
+
+    std::memcpy(ptr, &entityId, sizeof(int));
     ptr += sizeof(int);
 
-    std::string_view dataView(reinterpret_cast<char*>(buffer.data()), buffer.size());
+    std::string_view dataView(reinterpret_cast<char*>(buffer.data()),
+                              buffer.size());
     talk(dataView);
   }
 
@@ -86,15 +90,15 @@ void Client::handleMessage(std::string_view message) {
     float m;
     int flags;
 
-    const char * ptr = message.data();
+    const char* ptr = message.data();
 
-    memcpy(&mx, ptr, sizeof(short));
+    std::memcpy(&mx, ptr, sizeof(short));
     ptr += sizeof(short);
-    memcpy(&my, ptr, sizeof(short));
+    std::memcpy(&my, ptr, sizeof(short));
     ptr += sizeof(short);
-    memcpy(&m, ptr, sizeof(float));
+    std::memcpy(&m, ptr, sizeof(float));
     ptr += sizeof(float);
-    memcpy(&flags, ptr, sizeof(int));
+    std::memcpy(&flags, ptr, sizeof(int));
 
     bool moving = flags & 1;
     lmb = flags & 2;
@@ -112,15 +116,3 @@ void Client::kick() const {
 
   std::cout << "Client " << id << " kicked" << std::endl;
 }
-
-int Client::getEntityId() const {
-  return entityId;
-};
-
-bool Client::isDead() const {
-  return disconnected;
-};
-
-bool Client::playerSpawned() const {
-  return pSpawn;
-};

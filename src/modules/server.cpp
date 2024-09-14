@@ -20,47 +20,42 @@ namespace server {
     delayTimer = timer;
     grid = g;
 
-    uWS::App().ws<SocketData>(
-      "/ws",
-      {
-        .upgrade = [](auto* res, auto* req, auto* context) {
-          std::string_view color = req->getQuery("color");
+    uWS::App()
+        .ws<SocketData>("/ws",
+                        {.upgrade =
+                             [](auto* res, auto* req, auto* context) {
+                               std::string_view color = req->getQuery("color");
 
-          res->template upgrade<SocketData>(
-            {
-              .color = std::string{color}
-            },
-            req->getHeader("sec-websocket-key"),
-            req->getHeader("sec-websocket-protocol"),
-            req->getHeader("sec-websocket-extensions"),
-            context
-          );
-        },
-        .open = socketOpen,
-        .message = socketMessage,
-        .close = socketClose
-      }
-    ).get(
-      "/mockups",
-      [](auto* res, auto* req) {
-        std::string data;
-        std::ifstream ifs{"mockups.hex"};
-        ifs >> data;
+                               res->template upgrade<SocketData>(
+                                   {.color = std::string{color}},
+                                   req->getHeader("sec-websocket-key"),
+                                   req->getHeader("sec-websocket-protocol"),
+                                   req->getHeader("sec-websocket-extensions"),
+                                   context);
+                             },
+                         .open = socketOpen,
+                         .message = socketMessage,
+                         .close = socketClose})
+        .get("/mockups",
+             [](auto* res, auto* req) {
+               std::string data;
+               std::ifstream ifs{"mockups.hex"};
+               ifs >> data;
 
-        res->writeHeader("Access-Control-Allow-Origin", "*");
-        res->end(data);
-      }
-    ).listen(
-      port,
-      [port](auto* token) {
-        listenSocket = token;
-        if (listenSocket) {
-          std::cout << "WebSocket server listening on port " << port << std::endl;
-        } else {
-          std::cout << "Failed to bind to port " << port << std::endl;
-        }
-      }
-    ).run();
+               res->writeHeader("Access-Control-Allow-Origin", "*");
+               res->end(data);
+             })
+        .listen(port,
+                [port](auto* token) {
+                  listenSocket = token;
+                  if (listenSocket) {
+                    std::cout << "WebSocket server listening on port " << port
+                              << std::endl;
+                  } else {
+                    std::cout << "Failed to bind to port " << port << std::endl;
+                  }
+                })
+        .run();
   }
 
   void cleanup(int signal) {
@@ -81,7 +76,7 @@ namespace server {
     }
     Entity::instances.clear();
 
-    hshg_free(grid); // TODO: fix crash caused by running this
+    hshg_free(grid);
   }
 
   int counter = 0;
@@ -110,9 +105,15 @@ namespace server {
 
     Client* client = new Client(ws, id, data->color, grid);
 
-    std::vector<uint8_t> buffer = map.encode();
+    std::vector<uint8_t> mapData = map.encode();
+    std::vector<uint8_t> buffer(1 + mapData.size());
 
-    std::string_view dataView(reinterpret_cast<char*>(buffer.data()), buffer.size());
+    buffer[0] = 'm'; // header
+
+    std::memcpy(buffer.data() + 1, mapData.data(), mapData.size());
+
+    std::string_view dataView(reinterpret_cast<char*>(buffer.data()),
+                              buffer.size());
 
     client->talk(dataView);
 
