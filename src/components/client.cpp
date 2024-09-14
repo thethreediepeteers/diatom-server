@@ -62,8 +62,6 @@ void Client::handleMessage(std::string_view message) {
   if (message.size() < 1) {
     return;
   }
-  unsigned char header = message[0];
-  std::cout << header << '\n';
   if (message.size() == sizeof(int)) {
     if (pSpawn) {
       kick(); // kick if already spawned

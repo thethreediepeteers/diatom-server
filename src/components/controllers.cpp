@@ -36,7 +36,7 @@ BulletController::BulletController(Entity* base) : Controller(base) {}
 void BulletController::move() {
   base->pos += base->vel;
 
-  // base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
+  base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
 }
 
 void BulletController::collide(Entity* other) {

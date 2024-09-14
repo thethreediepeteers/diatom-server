@@ -4,6 +4,20 @@
 #include <iomanip>
 #include <iostream>
 
+Definition bullet = {.size = 20, .shape = 0, .body = {.health = 10}};
+
+Definition aggressor = {
+    .size = 32.5,
+    .shape = 0,
+    .guns = {{.length = 30,
+              .width = 17.5,
+              .aspect = 1,
+              .body = {.bspeed = 2.5, .reload = 1, .life = 0}}},
+    .body = {.health = 50, .speed = 2}};
+
+std::map<std::string, Definition> Definition::definitions = {
+    {"bullet", bullet}, {"aggressor", aggressor}};
+
 std::vector<uint8_t> GunMockup::encode() {
   std::vector<uint8_t> buffer(6 * sizeof(float));
 
@@ -47,21 +61,7 @@ std::vector<uint8_t> TurretMockup::encode() const {
   return buffer;
 }
 
-Definition bullet = {.size = 20, .shape = 0, .body = {.health = 10}};
-
-Definition aggressor = {
-    .size = 32.5,
-    .shape = 0,
-    .guns = {{.length = 30,
-              .width = 17.5,
-              .aspect = 1.35,
-              .body = {.bspeed = 2.5, .reload = 10, .life = 50}}},
-    .body = {.health = 50, .speed = 2}};
-
 int Definition::counter = 0;
-
-std::map<std::string, Definition> Definition::definitions = {
-    {"bullet", bullet}, {"aggressor", aggressor}};
 
 std::vector<uint8_t> Definition::encode() {
   int gunsSize = guns.size() * (6 * sizeof(float));

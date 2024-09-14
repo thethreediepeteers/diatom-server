@@ -3,6 +3,7 @@
 git clone https://github.com/uNetworking/uSockets
 cd uSockets
 make
+mkdir -p ../lib
 cp uSockets.a ../lib
 cd ../
 
