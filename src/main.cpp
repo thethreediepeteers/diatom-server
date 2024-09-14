@@ -1,3 +1,4 @@
+#include "components/mockups.h"
 #include "modules/config.h"
 #include "modules/physics.h"
 #include "modules/server.h"
