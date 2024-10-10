@@ -12,7 +12,7 @@ Definition aggressor = {
     .guns = {{.length = 30,
               .width = 17.5,
               .aspect = 1,
-              .body = {.bspeed = 2.5, .reload = 0, .life = 0}}},
+              .body = {.bspeed = 2.5, .reload = 10, .life = 50}}},
     .body = {.health = 50, .speed = 2}};
 
 std::map<std::string, Definition> Definition::definitions = {
@@ -135,8 +135,7 @@ void generateMockups() {
 
   ofs.close();
 
-  std::chrono::_V2::steady_clock::time_point endTime =
-      std::chrono::steady_clock::now();
+  auto endTime = std::chrono::steady_clock::now();
 
   std::cout << size << " bytes of mockups generated in "
             << std::chrono::duration_cast<std::chrono::milliseconds>(endTime -

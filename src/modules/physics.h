@@ -10,13 +10,19 @@
 struct XY {
   double x, y;
 
-  XY(double x, double y);
+  XY(double x, double y) : x(x), y(y) {}
 
-  XY operator*(double n);
-  XY operator/(double n);
+  XY operator*(double n) { return {x * n, y * n}; }
+  XY operator/(double n) { return {x / n, y / n}; }
 
-  void operator+=(const XY other);
-  void operator*=(double n);
+  void operator+=(const XY other) {
+    x += other.x;
+    y += other.y;
+  }
+  void operator*=(double n) {
+    x *= n;
+    y *= n;
+  }
 };
 
 struct Map {

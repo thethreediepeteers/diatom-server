@@ -23,8 +23,6 @@ public:
   void handleMessage(std::string_view message);
   void kick() const;
 
-  Entity* entity;
-
   int getEntityId() const { return entityId; };
   bool isDead() const { return disconnected; };
   bool playerSpawned() const { return pSpawn; };
@@ -32,6 +30,8 @@ public:
 private:
   int id;
   int entityId;
+
+  Entity* entity;
 
   bool disconnected;
   bool pSpawn;

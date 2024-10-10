@@ -2,8 +2,6 @@
 #include "modules/config.h"
 #include "modules/physics.h"
 #include "modules/server.h"
-#include "modules/util.h"
-#include <chrono>
 #include <csignal>
 #include <iostream>
 
@@ -21,12 +19,6 @@ int main() {
 
   us_timer_t* loop = setupLoop();
 
-  for (int i = 0; i < 1000; ++i) {
-    (new Entity(util::rand(config::MAP_WIDTH), util::rand(config::MAP_HEIGHT),
-                util::rand(360), util::rand(3, 15), util::HexColor("#ff0000"),
-                HSHG))
-        ->spawn("bullet", 1001);
-  }
   server::run(config::SERVER_PORT, loop, HSHG);
 
   std::cout << "Server successfully shut down" << std::endl;
@@ -40,54 +32,23 @@ void setupSignals() {
 }
 
 void tick() {
-  auto startt = std::chrono::steady_clock::now();
+  hshg_optimize(HSHG);
+  hshg_collide(HSHG);
 
-  auto start1 = std::chrono::steady_clock::now();
   for (const auto& client : Client::instances) {
     client.second->tick();
   }
-  auto end1 = std::chrono::steady_clock::now() - start1;
 
-  auto start2 = std::chrono::steady_clock::now();
+  for (const auto& entity : Entity::instances) {
+    entity.second->tick();
+  }
   for (const auto& id : Entity::toDelete) {
     delete Entity::instances[id];
     Entity::instances.erase(id);
   }
-  auto end2 = std::chrono::steady_clock::now() - start2;
+  Entity::toDelete.clear();
 
-  auto start3 = std::chrono::steady_clock::now();
-  for (const auto& entity : Entity::instances) {
-    entity.second->tick();
-  }
-  auto end3 = std::chrono::steady_clock::now() - start3;
-
-  auto start4 = std::chrono::steady_clock::now();
   hshg_update(HSHG);
-  hshg_collide(HSHG); // this thing use up ms
-  auto end4 = std::chrono::steady_clock::now() - start4;
-
-  auto endt = std::chrono::steady_clock::now() - startt;
-
-  std::cout
-      << "Client tick time: "
-      << std::chrono::duration_cast<std::chrono::milliseconds>(end1).count()
-      << " ms" << '\n';
-  std::cout
-      << "Entity delete time: "
-      << std::chrono::duration_cast<std::chrono::milliseconds>(end2).count()
-      << " ms" << '\n';
-  std::cout
-      << "Entity tick time: "
-      << std::chrono::duration_cast<std::chrono::milliseconds>(end3).count()
-      << " ms" << '\n';
-  std::cout
-      << "HSHG update/collide time: "
-      << std::chrono::duration_cast<std::chrono::milliseconds>(end4).count()
-      << " ms" << '\n';
-  std::cout
-      << "Total tick time: "
-      << std::chrono::duration_cast<std::chrono::milliseconds>(endt).count()
-      << " ms" << '\n';
 }
 
 us_timer_t* setupLoop() {

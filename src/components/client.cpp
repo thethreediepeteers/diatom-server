@@ -25,14 +25,12 @@ Client::~Client() {
 }
 
 void Client::tick() {
-  if (!entity) {
-    return;
-  }
+  if (entity) {
+    entity->vel += movement;
 
-  entity->vel += movement;
-
-  if (lmb) {
-    entity->shoot();
+    if (lmb) {
+      entity->shoot();
+    }
   }
 
   size_t entitySize = sizeof(int) * 5 + sizeof(double) * 2 + sizeof(float) * 2 +

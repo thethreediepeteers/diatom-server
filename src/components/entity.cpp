@@ -13,15 +13,18 @@ int Entity::counter{};
 
 Entity::Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
                hshg* grid)
-    : death(true), remove(false), id(counter++), health(0), maxHealth(0),
-      mockupId(-1), angle(angle), grid(grid), shape(shape), color(c),
-      pos(XY(x, y)), vel(XY(0, 0)) {
+    : id(counter++), health(0), maxHealth(0), mockupId(-1), flags(0),
+      angle(angle), grid(grid), shape(shape), color(c), pos(XY(x, y)),
+      vel(XY(0, 0)) {
+  setFlag(0, true);  // death = true
+  setFlag(1, false); // remove = false
+
   instances[id] = this;
 }
 
 void Entity::spawn(const std::string& mockup, int t, ControlType control,
                    int l) {
-  death = false;
+  setFlag(0, false); // death = false
 
   define(mockup);
   hshg_insert(grid, pos.x, pos.y, size, id);
@@ -43,11 +46,8 @@ void Entity::spawn(const std::string& mockup, int t, ControlType control,
 void Entity::kill() {
   toDelete.push_back(id);
 
-  remove = true;
-
-  if (!death) {
-    death = true;
-  }
+  setFlag(0, true); // death = true
+  setFlag(1, true); // remove = true
 }
 
 void Entity::tick() {
@@ -62,7 +62,7 @@ void Entity::tick() {
   }
 }
 
-void Entity::stayInBounds(int x, int y, int width, int height) {
+void Entity::stayInBounds(int /*x*/, int /*y*/, int width, int height) {
   if (pos.x < 0) {
     vel.x -= (pos.x) / config::ROOM_BOUNCE;
   } else if (pos.x > width) {
@@ -130,7 +130,8 @@ void Entity::addVel(const XY other) { vel += other; };
 
 std::vector<uint8_t> Entity::encode() const {
   std::vector<uint8_t> buffer(2 * sizeof(double) + 2 * sizeof(float) +
-                              sizeof(int) * 5 + 4 /*shape (1) + color (3)*/);
+                              sizeof(int) * 5 +
+                              4); // shape (1 byte) + color (3 bytes)
 
   uint8_t* ptr = buffer.data();
 

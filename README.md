@@ -4,7 +4,4 @@ Run `install.sh` with root perms:
 sudo ./install.sh 
 ```
 
-Run `make` to compile
-```bash
-make
-```
+Run `make` to compile or `RELEASE=1 make` to compile in release mode with optimizations.

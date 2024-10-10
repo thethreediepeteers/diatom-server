@@ -4,20 +4,6 @@
 #include <cmath>
 #include <cstring>
 
-XY::XY(double x, double y) : x(x), y(y) {}
-
-XY XY::operator*(double n) { return {x * n, y * n}; }
-XY XY::operator/(double n) { return {x / n, y / n}; }
-
-void XY::operator+=(const XY other) {
-  x += other.x;
-  y += other.y;
-}
-void XY::operator*=(double n) {
-  x *= n;
-  y *= n;
-}
-
 Map::Map(int width, int height) : width(width), height(height) {}
 
 std::vector<uint8_t> Map::encode() const {
@@ -33,7 +19,7 @@ std::vector<uint8_t> Map::encode() const {
 }
 
 hshg* initHSHG() {
-  hshg* grid = hshg_create(config::MAP_WIDTH, 16);
+  hshg* grid = hshg_create(config::MAP_WIDTH / 16, 16);
   grid->update = updateHSHG;
   grid->collide = collideHSHG;
 
@@ -41,18 +27,15 @@ hshg* initHSHG() {
 }
 
 void updateHSHG(hshg* h, hshg_entity* entity) {
-  std::map<int, Entity*>::iterator it = Entity::instances.find(entity->ref);
-
-  if (it == Entity::instances.end()) {
+  if (!Entity::instances.count(entity->ref)) {
     hshg_remove(h);
     return;
   }
+  Entity* e = Entity::instances.at(entity->ref);
 
-  Entity* e = it->second;
-
-  if (e->remove) {
+  if (e->getFlag(1)) {
     hshg_remove(h);
-    e->remove = false;
+    e->setFlag(1, false);
 
     return;
   }
@@ -63,9 +46,13 @@ void updateHSHG(hshg* h, hshg_entity* entity) {
   hshg_move(h);
 }
 
-void collideHSHG(const hshg* hshg, const hshg_entity* a, const hshg_entity* b) {
-  Entity* ea = Entity::instances[a->ref];
-  Entity* eb = Entity::instances[b->ref];
+void collideHSHG(const hshg* /*hshg*/, const hshg_entity* a,
+                 const hshg_entity* b) {
+  if (!Entity::instances.count(a->ref) || !Entity::instances.count(b->ref)) {
+    return;
+  }
+  Entity* ea = Entity::instances.at(a->ref);
+  Entity* eb = Entity::instances.at(b->ref);
 
   ea->controller->collide(eb);
   eb->controller->collide(ea);

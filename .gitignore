@@ -1,5 +1,4 @@
 # Editor directories and files
-.clang-format
 **/.cache/
 compile_commands.json
 perf.data
@@ -12,5 +11,4 @@ mockups.hex
 *.exe
 *.o
 server
-debug_server
 lib/

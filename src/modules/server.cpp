@@ -27,7 +27,7 @@ namespace server {
                                std::string_view color = req->getQuery("color");
 
                                res->template upgrade<SocketData>(
-                                   {.color = std::string{color}},
+                                   {.color = std::string{color}, .id = -1},
                                    req->getHeader("sec-websocket-key"),
                                    req->getHeader("sec-websocket-protocol"),
                                    req->getHeader("sec-websocket-extensions"),
@@ -37,7 +37,7 @@ namespace server {
                          .message = socketMessage,
                          .close = socketClose})
         .get("/mockups",
-             [](auto* res, auto* req) {
+             [](auto* res, auto* /*req*/) {
                std::string data;
                std::ifstream ifs{"mockups.hex"};
                ifs >> data;
@@ -58,7 +58,7 @@ namespace server {
         .run();
   }
 
-  void cleanup(int signal) {
+  void cleanup(int /*signal*/) {
     std::cout << std::endl;
 
     std::filesystem::remove("mockups.hex");

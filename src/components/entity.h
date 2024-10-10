@@ -50,12 +50,18 @@ public:
 
   std::unique_ptr<Controller> controller;
 
-  bool death;
-  bool remove;
-
   int getId() const { return id; };
   XY getPos() const { return pos; };
   float getSize() const { return size; };
+
+  bool getFlag(uint8_t index) const { return flags & (1 << index); }
+  void setFlag(uint8_t index, bool f) {
+    if (f) {
+      flags |= (1 << index);
+    } else {
+      flags &= ~(1 << index);
+    }
+  }
 
 private:
   int id;
@@ -65,6 +71,8 @@ private:
   int maxHealth;
   int team;
   int mockupId;
+
+  uint8_t flags; // 1: death, 2: remove from hshg
 
   float size;
   float angle;
