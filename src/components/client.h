@@ -28,10 +28,10 @@ public:
   bool playerSpawned() const { return pSpawn; };
 
 private:
+  Entity* entity;
+
   int id;
   int entityId;
-
-  Entity* entity;
 
   bool disconnected;
   bool pSpawn;
