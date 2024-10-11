@@ -8,7 +8,7 @@
 std::map<int, Client*> Client::instances{};
 
 Client::Client(WS* socket, int id, std::string color, hshg* grid)
-    : entity(nullptr), id(id), entityId(-1), disconnected(false), pSpawn(false),
+    : id(id), entityId(-1), entity(nullptr), disconnected(false), pSpawn(false),
       lmb(false), rmb(false), color(color), grid(grid), socket(socket),
       movement(XY(0, 0)), mouse(XY(0, 0)) {
   instances[id] = this;
@@ -52,6 +52,11 @@ void Client::tick() {
   talk(dataView);
 }
 
+void Client::killEntity() {
+  pSpawn = false;
+  entity = nullptr;
+}
+
 void Client::talk(std::string_view message) const {
   socket->send(message, uWS::OpCode::BINARY);
 }
@@ -67,10 +72,11 @@ void Client::handleMessage(std::string_view message) {
 
     entity = new Entity(util::rand(config::MAP_WIDTH),
                         util::rand(config::MAP_HEIGHT), 0,
-                        util::rand<uint8_t>(3, 15), color, grid);
+                        util::rand<uint8_t>(3, 15), color, grid, id);
     entityId = entity->getId();
 
     entity->spawn("aggressor");
+    pSpawn = true;
 
     std::vector<uint8_t> buffer(1 + sizeof(int));
     uint8_t* ptr = buffer.data() + 1;
@@ -86,6 +92,10 @@ void Client::handleMessage(std::string_view message) {
   }
 
   else if (message.size() == 2 * sizeof(short) + sizeof(float) + sizeof(int)) {
+    if (!entity) {
+      return;
+    }
+
     short mx;
     short my;
     float m;
@@ -115,5 +125,5 @@ void Client::kick() const {
   instances.erase(id);
   socket->close();
 
-  std::cout << "Client " << id << " kicked" << std::endl;
+  std::cout << "Client " << id << " kicked" << '\n';
 }

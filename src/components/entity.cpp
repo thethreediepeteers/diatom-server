@@ -1,4 +1,5 @@
 #include "entity.h"
+#include "client.h"
 #include "components/controllers.h"
 #include "mockups.h"
 #include "modules/config.h"
@@ -12,9 +13,9 @@ std::vector<int> Entity::toDelete{};
 int Entity::counter{};
 
 Entity::Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
-               hshg* grid)
-    : id(counter++), health(0), maxHealth(0), mockupId(-1), flags(0),
-      angle(angle), grid(grid), shape(shape), color(c), pos(XY(x, y)),
+               hshg* grid, int clientId)
+    : id(counter++), health(0), maxHealth(0), mockupId(-1), clientId(clientId),
+      flags(0), angle(angle), grid(grid), shape(shape), color(c), pos(XY(x, y)),
       vel(XY(0, 0)) {
   setFlag(0, true);  // death = true
   setFlag(1, false); // remove = false
@@ -44,6 +45,9 @@ void Entity::spawn(const std::string& mockup, int t, ControlType control,
 }
 
 void Entity::kill() {
+  if (clientId != -1) {
+    Client::instances[clientId]->killEntity();
+  }
   toDelete.push_back(id);
 
   setFlag(0, true); // death = true

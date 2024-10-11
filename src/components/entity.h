@@ -31,7 +31,7 @@ public:
   enum class ControlType { DefaultController, BulletController };
 
   Entity(double x, double y, float angle, uint8_t shape, util::HexColor c,
-         hshg* grid);
+         hshg* grid, int clientId = -1);
 
   void spawn(const std::string& mockup, int t = counter,
              ControlType control = ControlType::DefaultController, int l = 0);
@@ -71,6 +71,7 @@ private:
   int maxHealth;
   int team;
   int mockupId;
+  int clientId;
 
   uint8_t flags; // 1: death, 2: remove from hshg
 
