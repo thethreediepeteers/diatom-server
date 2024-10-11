@@ -141,5 +141,5 @@ void generateMockups() {
             << std::chrono::duration_cast<std::chrono::milliseconds>(endTime -
                                                                      startTime)
                    .count()
-            << "ms" << std::endl;
+            << "ms" << '\n';
 }

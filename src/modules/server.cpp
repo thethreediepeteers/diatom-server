@@ -50,16 +50,16 @@ namespace server {
                   listenSocket = token;
                   if (listenSocket) {
                     std::cout << "WebSocket server listening on port " << port
-                              << std::endl;
+                              << '\n';
                   } else {
-                    std::cout << "Failed to bind to port " << port << std::endl;
+                    std::cout << "Failed to bind to port " << port << '\n';
                   }
                 })
         .run();
   }
 
   void cleanup(int /*signal*/) {
-    std::cout << std::endl;
+    std::cout << '\n';
 
     std::filesystem::remove("mockups.hex");
 
@@ -117,7 +117,7 @@ namespace server {
 
     client->talk(dataView);
 
-    std::cout << "Client " << id << " connected from " << ip << std::endl;
+    std::cout << "Client " << id << " connected from " << ip << '\n';
   }
 
   void socketMessage(WS* ws, std::string_view message, uWS::OpCode opCode) {
@@ -142,7 +142,7 @@ namespace server {
 
     int id = ws->getUserData()->id;
 
-    std::cout << "Client " << id << " disconnected" << std::endl;
+    std::cout << "Client " << id << " disconnected" << '\n';
 
     Client* client = Client::instances[id];
     if (!client) {

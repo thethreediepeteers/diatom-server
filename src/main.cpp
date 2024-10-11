@@ -21,7 +21,7 @@ int main() {
 
   server::run(config::SERVER_PORT, loop, HSHG);
 
-  std::cout << "Server successfully shut down" << std::endl;
+  std::cout << "Server successfully shut down" << '\n';
 
   return 0;
 }
