@@ -65,59 +65,77 @@ void Client::handleMessage(std::string_view message) {
   if (message.size() < 1) {
     return;
   }
-  if (message.size() == sizeof(int)) {
-    if (pSpawn) {
-      kick(); // kick if already spawned
+
+  const char* ptr = message.data();
+
+  uint8_t header;
+  std::memcpy(&header, ptr, 1);
+  ++ptr;
+
+  switch (header) {
+    case 's': {
+      // spawn message
+
+      if (pSpawn) {
+        kick(); // kick if already spawned
+      }
+
+      entity = new Entity(util::rand(config::MAP_WIDTH),
+                          util::rand(config::MAP_HEIGHT), 0,
+                          util::rand<uint8_t>(3, 15), color, grid, id);
+      entityId = entity->getId();
+
+      entity->spawn("aggressor");
+      pSpawn = true;
+
+      std::vector<uint8_t> buffer(1 + sizeof(int));
+      uint8_t* ptr = buffer.data() + 1;
+
+      buffer[0] = 's'; // header
+
+      std::memcpy(ptr, &entityId, sizeof(int));
+      ptr += sizeof(int);
+
+      std::string_view dataView(reinterpret_cast<char*>(buffer.data()),
+                                buffer.size());
+      talk(dataView);
+
+      break;
     }
+    case 'm': {
+      // update message
+      if (message.size() !=
+          (1 + sizeof(short) * 2 + sizeof(float) + sizeof(int))) {
+        return;
+      }
 
-    entity = new Entity(util::rand(config::MAP_WIDTH),
-                        util::rand(config::MAP_HEIGHT), 0,
-                        util::rand<uint8_t>(3, 15), color, grid, id);
-    entityId = entity->getId();
+      if (!entity) {
+        return;
+      }
 
-    entity->spawn("aggressor");
-    pSpawn = true;
+      short mx;
+      short my;
+      float m;
+      int flags;
 
-    std::vector<uint8_t> buffer(1 + sizeof(int));
-    uint8_t* ptr = buffer.data() + 1;
+      std::memcpy(&mx, ptr, sizeof(short));
+      ptr += sizeof(short);
+      std::memcpy(&my, ptr, sizeof(short));
+      ptr += sizeof(short);
+      std::memcpy(&m, ptr, sizeof(float));
+      ptr += sizeof(float);
+      std::memcpy(&flags, ptr, sizeof(int));
 
-    buffer[0] = 's'; // header
+      bool moving = flags & 1;
+      lmb = flags & 2;
+      rmb = flags & 4;
 
-    std::memcpy(ptr, &entityId, sizeof(int));
-    ptr += sizeof(int);
+      movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
+      mouse = XY(mx, my);
+      entity->angle = std::atan2(my, mx);
 
-    std::string_view dataView(reinterpret_cast<char*>(buffer.data()),
-                              buffer.size());
-    talk(dataView);
-  }
-
-  else if (message.size() == 2 * sizeof(short) + sizeof(float) + sizeof(int)) {
-    if (!entity) {
-      return;
+      break;
     }
-
-    short mx;
-    short my;
-    float m;
-    int flags;
-
-    const char* ptr = message.data();
-
-    std::memcpy(&mx, ptr, sizeof(short));
-    ptr += sizeof(short);
-    std::memcpy(&my, ptr, sizeof(short));
-    ptr += sizeof(short);
-    std::memcpy(&m, ptr, sizeof(float));
-    ptr += sizeof(float);
-    std::memcpy(&flags, ptr, sizeof(int));
-
-    bool moving = flags & 1;
-    lmb = flags & 2;
-    rmb = flags & 4;
-
-    movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
-    mouse = XY(mx, my);
-    entity->angle = std::atan2(my, mx);
   }
 }
 
