@@ -117,7 +117,7 @@ void Client::handleMessage(std::string_view message) {
 
     movement = moving ? XY(std::cos(m), std::sin(m)) : XY(0, 0);
     mouse = XY(mx, my);
-    entity->angle = atan2(my, mx);
+    entity->angle = std::atan2(my, mx);
   }
 }
 

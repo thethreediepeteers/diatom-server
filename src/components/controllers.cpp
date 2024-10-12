@@ -13,6 +13,8 @@ void Controller::move() {
 }
 
 void Controller::collide(Entity* other) {
+  // TODO: better checks for whether to do collision or damage
+
   if (base->team == other->team) {
     return;
   }
@@ -28,6 +30,9 @@ void Controller::collide(Entity* other) {
 
     base->vel += {cosa, sina};
     other->vel += {-cosa, -sina};
+
+    --base->health;
+    --other->health;
   }
 }
 
@@ -40,6 +45,8 @@ void BulletController::move() {
 }
 
 void BulletController::collide(Entity* other) {
+  // TODO: better checks for whether to do collision or damage
+
   if (base->team == other->team) {
     return;
   }
