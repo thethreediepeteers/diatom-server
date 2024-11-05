@@ -37,4 +37,12 @@ namespace util {
   T rand(T max) {
     return rand<T>(0, max);
   }
+
+  void writeStringToBuffer(std::vector<uint8_t>& buffer,
+                           const std::string& string);
+  template <typename T>
+  void writeToBuffer(std::vector<uint8_t>& buffer, T val) {
+    uint8_t* data = reinterpret_cast<uint8_t*>(&val);
+    buffer.insert(buffer.end(), data, data + sizeof(double));
+  }
 } // namespace util

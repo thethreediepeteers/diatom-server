@@ -1,8 +1,75 @@
 #include "mockups.h"
+#include "modules/util.h"
 #include <chrono>
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <lua.hpp>
+
+std::vector<uint8_t> buffer;
+
+enum TypeId : uint8_t {
+  TYPE_NUM = 0x01,
+  TYPE_STRING = 0x02,
+  TYPE_STARTTABLE = 0x03,
+  TYPE_ENDTABLE = 0x04,
+  TYPE_ARRAY = 0x05,
+};
+
+void iterLuaTable(lua_State* L) {
+  lua_pushnil(L);
+
+  while (lua_next(L, -2)) {
+    if (lua_isinteger(L, -2)) {
+      buffer.push_back(TYPE_ARRAY);
+    } else if (lua_isstring(L, -2)) {
+      std::string key = lua_tostring(L, -2);
+
+      buffer.push_back(TYPE_STRING);
+      util::writeStringToBuffer(buffer, key);
+    }
+
+    if (lua_isnumber(L, -1)) {
+      buffer.push_back(TYPE_NUM);
+
+      double value = lua_tonumber(L, -1);
+      util::writeToBuffer(buffer, value);
+    } else if (lua_isstring(L, -1)) {
+      buffer.push_back(TYPE_STRING);
+
+      std::string value = lua_tostring(L, -1);
+      util::writeStringToBuffer(buffer, value);
+
+    } else if (lua_istable(L, -1)) {
+      buffer.push_back(TYPE_STARTTABLE);
+
+      iterLuaTable(L);
+
+      buffer.push_back(TYPE_ENDTABLE);
+    }
+
+    lua_pop(L, 1);
+  }
+}
+
+void loadLuaMockups() {
+  lua_State* L = luaL_newstate();
+  luaL_openlibs(L);
+
+  if (luaL_dofile(L, "definitions.lua") != LUA_OK) {
+    std::cout << "Error reading definitions: " << lua_tostring(L, -1) << '\n';
+    lua_close(L);
+    return;
+  }
+
+  lua_getglobal(L, "Exports");
+
+  iterLuaTable(L);
+  lua_pop(L, 1);
+
+  lua_close(L);
+}
 
 Definition bullet = {.size = 20, .shape = 0, .body = {.health = 10}};
 
@@ -129,7 +196,7 @@ void generateMockups() {
   std::ofstream ofs{"mockups.hex"};
 
   ofs << std::hex << std::setfill('0');
-  for (uint8_t u : mockups) {
+  for (uint8_t u : buffer) {
     ofs << std::setw(2) << (int)u;
   }
 

@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+void loadLuaMockups();
+
 struct GunBody {
   float bspeed;
   float reload;

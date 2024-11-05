@@ -12,6 +12,7 @@ us_timer_t* setupLoop();
 hshg* HSHG;
 
 int main() {
+  loadLuaMockups();
   generateMockups();
   setupSignals();
 
