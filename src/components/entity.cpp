@@ -5,6 +5,7 @@
 #include "modules/config.h"
 #include <csignal>
 #include <cstring>
+#include <iostream>
 
 // initalize static variables
 std::map<int, Entity*> Entity::instances{};
@@ -34,13 +35,13 @@ void Entity::spawn(const std::string& mockup, int t, ControlType control,
   life = l;
 
   switch (control) {
-  case ControlType::BulletController:
-    controller = std::make_unique<BulletController>(this);
-    break;
+    case ControlType::BulletController:
+      controller = std::make_unique<BulletController>(this);
+      break;
 
-  default:
-    controller = std::make_unique<Controller>(this);
-    break;
+    default:
+      controller = std::make_unique<Controller>(this);
+      break;
   }
 }
 
@@ -59,6 +60,10 @@ void Entity::tick() {
 
   for (Gun& gun : guns) {
     ++gun.tick;
+  }
+
+  if (autoFire) {
+    shoot();
   }
 
   if ((life > 0 && --life == 0) || health <= 0) {
@@ -93,7 +98,7 @@ void Entity::shoot() {
       Entity* entity =
           new Entity(bulletX, bulletY, angle + gun.angle, 1, color, grid);
 
-      entity->spawn("bullet", team, ControlType::BulletController, gun.life);
+      entity->spawn(gun.type, team, ControlType::BulletController, gun.life);
 
       entity->vel.x = std::cos(entity->angle) * 5 * gun.bspeed;
       entity->vel.y = std::sin(entity->angle) * 5 * gun.bspeed;
@@ -110,6 +115,8 @@ void Entity::define(std::string what) {
   size = def.size;
   speed = def.body.speed;
   health = maxHealth = def.body.health;
+  damage = def.body.damage;
+  autoFire = def.body.autoFire;
 
   guns.clear();
 
@@ -122,6 +129,8 @@ void Entity::define(std::string what) {
     g.bspeed = gunm.body.bspeed;
     g.reload = gunm.body.reload;
     g.life = gunm.body.life;
+    g.type = gunm.body.type;
+
     g.tick = g.reload;
 
     guns.push_back(g);

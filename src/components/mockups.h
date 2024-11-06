@@ -8,6 +8,7 @@
 #include <vector>
 
 struct GunBody {
+  std::string type;
   float bspeed;
   float reload;
 
@@ -17,8 +18,10 @@ struct GunBody {
 };
 
 struct Body {
+  int damage;
   int health;
   int speed;
+  bool autoFire;
 };
 
 struct GunMockup {

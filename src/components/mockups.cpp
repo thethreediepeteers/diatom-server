@@ -4,19 +4,35 @@
 #include <iomanip>
 #include <iostream>
 
-Definition bullet = {.size = 20, .shape = 0, .body = {.health = 10}};
+Definition bullet = {
+    .size = 20, .shape = 0, .body = {.damage = 1, .health = 10}};
 
-Definition aggressor = {
-    .size = 32.5,
+Definition bigBullet = {
+    .size = 20,
     .shape = 0,
-    .guns = {{.length = 30,
-              .width = 17.5,
-              .aspect = 1,
-              .body = {.bspeed = 2.5, .reload = 10, .life = 50}}},
-    .body = {.health = 50, .speed = 2}};
+    .guns =
+        {
+            {.length = 20,
+             .width = 10,
+             .aspect = 1,
+             .body = {.type = "bullet", .bspeed = 5, .reload = 20, .life = 25}},
+        },
+    .turrets = {{.size = 14, .angle = 45}},
+    .body = {.damage = 1, .health = 10, .autoFire = true}};
+
+Definition aggressor = {.size = 32.5,
+                        .shape = 0,
+                        .guns = {{.length = 30,
+                                  .width = 17.5,
+                                  .aspect = 1,
+                                  .body = {.type = "bigBullet",
+                                           .bspeed = 1,
+                                           .reload = 10,
+                                           .life = 50}}},
+                        .body = {.damage = 1, .health = 50, .speed = 2}};
 
 std::map<std::string, Definition> Definition::definitions = {
-    {"bullet", bullet}, {"aggressor", aggressor}};
+    {"bullet", bullet}, {"aggressor", aggressor}, {"bigBullet", bigBullet}};
 
 std::vector<uint8_t> GunMockup::encode() {
   std::vector<uint8_t> buffer(6 * sizeof(float));

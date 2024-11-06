@@ -10,6 +10,8 @@
 #include <vector>
 
 struct Gun {
+  std::string type;
+
   float offset;
   float offsetDirection;
   float reload;
@@ -68,10 +70,13 @@ private:
   int life;
   int speed;
   int health;
+  int damage;
   int maxHealth;
   int team;
   int mockupId;
   int clientId;
+
+  bool autoFire;
 
   uint8_t flags; // 1: death, 2: remove from hshg
 

@@ -2,6 +2,8 @@
 #include "entity.h"
 #include "modules/config.h"
 #include <cmath>
+#include <iostream>
+#include <numbers>
 
 Controller::Controller(Entity* base) : base(base) {}
 
@@ -31,8 +33,8 @@ void Controller::collide(Entity* other) {
     base->vel += {cosa, sina};
     other->vel += {-cosa, -sina};
 
-    --base->health;
-    --other->health;
+    base->health -= other->damage;
+    other->health -= base->damage;
   }
 }
 
@@ -56,7 +58,7 @@ void BulletController::collide(Entity* other) {
   float distance = dx * dx + dy * dy;
 
   if (distance <= (base->size + other->size) * (base->size + other->size)) {
-    --base->health;
-    --other->health;
+    base->health -= other->damage;
+    other->health -= base->damage;
   }
 }
