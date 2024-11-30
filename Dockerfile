@@ -10,7 +10,7 @@ ENV RELEASE 1
 
 RUN apk update
 RUN apk add clang libc-dev binutils make
-RUN ./install.sh
+RUN sh install.sh
 RUN make
 
 CMD ["./server"]
