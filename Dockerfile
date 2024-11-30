@@ -14,7 +14,6 @@ RUN apt-get install -y clang libc-dev binutils make git g++ zlib1g-dev libssl-de
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN sh install.sh
-RUN ls lib
 RUN make
 
 CMD ["./server"]
