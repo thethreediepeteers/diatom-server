@@ -8,7 +8,7 @@ else
 CXXFLAGS += -g3 -ggdb
 endif
 
-LIBFLAGS := -lz -lssl -lcrypto lib/uSockets.a
+LIBFLAGS := -lz -lssl -lcrypto /home/lib/uSockets.a
 INCLUDES := -Iinclude/ -Isrc/
 SRC_DIR := src
 TARGET := server
