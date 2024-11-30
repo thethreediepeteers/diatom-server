@@ -5,8 +5,8 @@ WORKDIR /home
 COPY . ./
 EXPOSE 3000
 
-ENV CC=clang
-ENV CXX=clang++
+ENV CC=gcc
+ENV CXX=g++
 # ENV RELEASE=1
 
 RUN apt-get update
