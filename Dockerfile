@@ -9,7 +9,7 @@ ENV CXX=clang++
 ENV RELEASE 1
 
 RUN apk update
-RUN apk add clang libc-dev binutils make git g++
+RUN apk add clang libc-dev binutils make git g++ zlib
 RUN sh install.sh
 RUN make
 
