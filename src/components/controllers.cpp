@@ -5,10 +5,12 @@
 #include <iostream>
 #include <numbers>
 
+const float weirdfactor = 2;
+
 Controller::Controller(Entity* base) : base(base) {}
 
 void Controller::move() {
-  base->pos += base->vel * base->speed / 2;
+  base->pos += base->vel * weirdfactor * base->speed / 2;
   base->vel *= 0.8;
 
   base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
@@ -41,9 +43,9 @@ void Controller::collide(Entity* other) {
 BulletController::BulletController(Entity* base) : Controller(base) {}
 
 void BulletController::move() {
-  base->pos += base->vel;
+  base->pos += base->vel * weirdfactor;
 
-  base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
+  // base->stayInBounds(0, 0, config::MAP_WIDTH, config::MAP_HEIGHT);
 }
 
 void BulletController::collide(Entity* other) {
