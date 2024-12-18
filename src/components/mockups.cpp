@@ -5,7 +5,7 @@
 #include <iostream>
 
 Definition bullet = {
-    .size = 20, .shape = 0, .body = {.damage = 1, .health = 10}};
+    .size = 20, .shape = 0, .layer = 1, .body = {.damage = 1, .health = 10}};
 
 Definition bigBullet = {
     .size = 20,
@@ -18,6 +18,7 @@ Definition bigBullet = {
              .body = {.type = "bullet", .bspeed = 5, .reload = 20, .life = 25}},
         },
     .turrets = {{.size = 14, .angle = 45}},
+    .layer = 1,
     .body = {.damage = 1, .health = 10, .autoFire = true}};
 
 Definition aggressor = {.size = 32.5,
@@ -29,6 +30,7 @@ Definition aggressor = {.size = 32.5,
                                            .bspeed = 1,
                                            .reload = 10,
                                            .life = 50}}},
+                        .layer = 0,
                         .body = {.damage = 1, .health = 50, .speed = 2}};
 
 std::map<std::string, Definition> Definition::definitions = {
@@ -85,7 +87,7 @@ std::vector<uint8_t> Definition::encode() {
   int gs = guns.size();
   int ts = turrets.size();
 
-  std::vector<uint8_t> buffer(sizeof(int) + sizeof(float) + 1 + sizeof(int) +
+  std::vector<uint8_t> buffer(sizeof(int) + sizeof(float) + 2 + sizeof(int) +
                               gunsSize + sizeof(int) + turretsSize);
 
   uint8_t* ptr = buffer.data();
@@ -94,6 +96,8 @@ std::vector<uint8_t> Definition::encode() {
   ptr += sizeof(int);
   std::memcpy(ptr, &size, sizeof(float));
   ptr += sizeof(float);
+  std::memcpy(ptr, &layer, 1);
+  ptr += 1;
   std::memcpy(ptr, &shape, 1);
   ptr += 1;
   std::memcpy(ptr, &gs, sizeof(int));

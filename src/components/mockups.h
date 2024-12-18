@@ -59,6 +59,7 @@ struct Definition {
   std::vector<GunMockup> guns;
   std::vector<TurretMockup> turrets;
 
+  uint8_t layer;
   Body body;
 
   std::vector<uint8_t> encode();
