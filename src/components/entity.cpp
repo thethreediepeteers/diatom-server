@@ -7,6 +7,9 @@
 #include <cstring>
 #include <iostream>
 
+// Please forgive me for this. I don't know c++. Don't kill me
+#define PI_CONST 3.14159272
+
 // initalize static variables
 std::map<int, Entity*> Entity::instances{};
 std::vector<int> Entity::toDelete{};
@@ -122,7 +125,7 @@ void Entity::define(std::string what) {
 
   for (GunMockup gunm : def.guns) {
     Gun g;
-    g.angle = gunm.angle * std::numbers::pi / 180;
+    g.angle = gunm.angle * PI_CONST / 180;
     g.length = gunm.length;
     g.offset = gunm.offset;
     g.offsetDirection = gunm.direction;

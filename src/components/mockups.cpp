@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <iostream>
 
+#define PI_CONST 3.14159264
+
 Definition bullet = {
     .size = 20, .shape = 0, .layer = 1, .body = {.damage = 1, .health = 10}};
 
@@ -42,7 +44,7 @@ std::vector<uint8_t> GunMockup::encode() {
   offset = std::sqrt(std::pow(xOffset, 2) + std::pow(yOffset, 2));
   direction = std::atan2(xOffset, yOffset);
 
-  float a = angle * std::numbers::pi / 180;
+  float a = angle * PI_CONST / 180;
   uint8_t* ptr = buffer.data();
 
   std::memcpy(ptr, &length, sizeof(float));
@@ -63,7 +65,7 @@ std::vector<uint8_t> GunMockup::encode() {
 std::vector<uint8_t> TurretMockup::encode() const {
   std::vector<uint8_t> buffer(4 * sizeof(float) + 1);
 
-  float a = angle * std::numbers::pi / 180;
+  float a = angle * PI_CONST / 180;
   uint8_t* ptr = buffer.data();
 
   std::memcpy(ptr, &xOffset, sizeof(float));
