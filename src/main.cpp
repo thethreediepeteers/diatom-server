@@ -13,6 +13,7 @@
 void setupSignals();
 void tick();
 us_timer_t* setupLoop();
+void executeSpawner();
 
 hshg* HSHG;
 
@@ -39,6 +40,8 @@ void setupSignals() {
 void tick() {
   hshg_optimize(HSHG);
   hshg_collide(HSHG);
+
+  executeSpawner();
 
   for (const auto& client : Client::instances) {
     client.second->tick();
@@ -68,22 +71,10 @@ us_timer_t* setupLoop() {
 }
 
 void executeSpawner() {
-  //config::MAP_WIDTH
-  srand(time(NULL));
+  auto entityX = util::rand(config::MAP_WIDTH);
+  auto entityY = util::rand(config::MAP_HEIGHT);
 
-  auto entityX = rand() / RAND_MAX * config::MAP_WIDTH;
-  auto entityY = rand() / RAND_MAX * config::MAP_HEIGHT;
+  Entity* entity = new Entity(entityX, entityY, 0, 3,  util::HexColor(255, 255, 255), HSHG);
 
-  Entity* entity = new Entity(entityX, entityY, 0, 3, *(new util::HexColor(0, 0, 0)), 0);
-
-  entity->spawn("");
-}
-
-void setupSpawner() {
-  uWS::Loop* loop = uWS::Loop::get();
-  us_timer_t* delayTimer = us_create_timer((us_loop_t*)loop, 0, 0);
-
-  us_timer_set(delayTimer, [](us_timer_t*) {
-    executeSpawner();
-  }, 5000, 5000);
+  entity->spawn("bullet");
 }
