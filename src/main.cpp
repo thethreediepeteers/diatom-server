@@ -74,7 +74,7 @@ void executeSpawner() {
   auto entityX = util::rand(config::MAP_WIDTH);
   auto entityY = util::rand(config::MAP_HEIGHT);
 
-  Entity* entity = new Entity(entityX, entityY, 0, 3,  util::HexColor(255, 255, 255), HSHG);
+  Entity* entity = new Entity(entityX, entityY, 0, util::rand(15),  util::HexColor(util::rand(255), util::rand(255), util::rand(255)), HSHG);
 
   entity->spawn("bullet");
 }
